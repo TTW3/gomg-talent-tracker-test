@@ -138,6 +138,9 @@ function initCharacterExtras(){
   const extras=which==="extras",database=which==="database",builder=which==="builder";
   document.querySelectorAll(".tracker-view").forEach(x=>x.hidden=database||extras||builder);
   $("talentDatabaseView").hidden=!database;view.hidden=!extras;if(teamView)teamView.hidden=!builder;
+  const advisorView=$("buildAdvisorView"),advisorBtn=$("buildAdvisorBtn");
+  if(advisorView)advisorView.hidden=true;
+  if(advisorBtn)advisorBtn.classList.remove("primary");
   trackerBtn.classList.toggle("primary",!database&&!extras&&!builder);
   talentBtn.classList.toggle("primary",database);btn.classList.toggle("primary",extras);if(teamBtn)teamBtn.classList.toggle("primary",builder);
   if(database)renderTalentDatabase();if(extras)renderCharacterExtras();if(builder&&window.renderTeamBuilder)window.renderTeamBuilder();
@@ -217,7 +220,7 @@ function injectTrackerLayoutStyle(){if($("trackerLayoutStyle"))return;const st=d
 .tracker-girl-line{display:flex;align-items:center;gap:8px;min-width:0}
 .tracker-girl-line .autocomplete{flex:1;min-width:0}
 .tracker-girl-icon{width:42px;height:42px;object-fit:cover;border-radius:9px;flex:0 0 42px;background:#f3e4dc}
-.tracker-girl-line .girlinput{display:block;width:100%;min-width:0;box-sizing:border-box;min-height:44px;height:44px;max-height:180px;resize:none;overflow:hidden;white-space:pre-wrap;overflow-wrap:anywhere;line-height:1.25;padding:8px 10px;font:inherit}
+.tracker-girl-line .girlinput{display:block;width:100%;min-width:0;box-sizing:border-box;min-height:44px;height:44px;max-height:180px;resize:none;overflow:hidden;white-space:pre-wrap;overflow-wrap:anywhere;line-height:1.25;padding:6px 10px 10px;font:inherit}
 .tracker-total-count{flex:0 0 auto;background:#35ad62;color:#fff;border-radius:8px;padding:5px 8px;font-weight:800;white-space:nowrap}
 .board-tabs{display:flex;flex-wrap:wrap;gap:5px;margin-top:7px}
 .board-tabs .board-tab{font-size:12px;padding:6px 8px;white-space:nowrap;display:inline-flex;align-items:center;gap:5px}
