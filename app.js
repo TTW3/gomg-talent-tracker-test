@@ -55,33 +55,53 @@ function raceName(t){const label=String(t?.source_label||"");return t?.source_ca
 function initTalentDbRaceFilters(){
  const toolbar=document.querySelector("#talentDatabaseView .talent-db-toolbar");
  if(!toolbar)return;
- // Remove duplicate/incorrectly placed filter rows left by previous versions.
- document.querySelectorAll("#talentDbCategoryFilters, #talentDbRaceFilters").forEach(el=>el.remove());
- const categories=document.createElement("div");
- categories.id="talentDbCategoryFilters";
- categories.className="talent-db-category-filters";
- categories.innerHTML=["All","Race","Exclusive","Class","Element","Generic"].map((cat,i)=>`<button type="button" data-db-category="${cat}" class="${i===0?"active":""}">${cat==="All"?"All types":cat}</button>`).join("");
- const races=document.createElement("div");
- races.id="talentDbRaceFilters";
- races.className="talent-db-race-filters";
+ const parent=toolbar.parentElement;
+ // Keep one set of filters next to the Talent Database toolbar; remove any duplicates elsewhere.
+ const cats=[...document.querySelectorAll("#talentDbCategoryFilters")];
+ const racesAll=[...document.querySelectorAll("#talentDbRaceFilters")];
+ let categories=cats.find(el=>el.parentElement===parent);
+ let races=racesAll.find(el=>el.parentElement===parent);
+ cats.forEach(el=>{if(el!==categories)el.remove()});
+ racesAll.forEach(el=>{if(el!==races)el.remove()});
+ if(!categories){
+  categories=document.createElement("div");
+  categories.id="talentDbCategoryFilters";
+  categories.className="talent-db-category-filters";
+  categories.innerHTML=["All","Race","Exclusive","Class","Element","Generic"].map(cat=>`<button type="button" data-db-category="${cat}">${cat==="All"?"All types":cat}</button>`).join("");
+  toolbar.after(categories);
+ }
+ if(!races){
+  races=document.createElement("div");
+  races.id="talentDbRaceFilters";
+  races.className="talent-db-race-filters";
+  const raceNames=[...new Set(GAME.talents.filter(t=>t.source_cat==="Race").map(raceName).filter(Boolean))].sort((a,b)=>a.localeCompare(b));
+  races.innerHTML=`<button type="button" data-db-race="All">All races</button>`+raceNames.map(r=>`<button type="button" data-db-race="${esc(r)}">${esc(r)}</button>`).join("");
+  categories.after(races);
+ }
+ // Always reflect the current filter state, without rebuilding the buttons on each render.
+ categories.querySelectorAll("[data-db-category]").forEach(x=>x.classList.toggle("active",x.dataset.dbCategory===talentDbCategory));
  races.hidden=talentDbCategory!=="Race";
- const raceNames=[...new Set(GAME.talents.filter(t=>t.source_cat==="Race").map(raceName).filter(Boolean))].sort((a,b)=>a.localeCompare(b));
- races.innerHTML=`<button type="button" class="active" data-db-race="All">All races</button>`+raceNames.map(r=>`<button type="button" data-db-race="${esc(r)}">${esc(r)}</button>`).join("");
- toolbar.after(categories,races);
- categories.addEventListener("click",e=>{
-  const b=e.target.closest("[data-db-category]");if(!b)return;
-  talentDbCategory=b.dataset.dbCategory;talentDbRace="All";
-  categories.querySelectorAll("[data-db-category]").forEach(x=>x.classList.toggle("active",x===b));
-  races.hidden=talentDbCategory!=="Race";
-  races.querySelectorAll("[data-db-race]").forEach(x=>x.classList.toggle("active",x.dataset.dbRace==="All"));
-  renderTalentDatabase();
- });
- races.addEventListener("click",e=>{
-  const b=e.target.closest("[data-db-race]");if(!b)return;
-  talentDbRace=b.dataset.dbRace;
-  races.querySelectorAll("[data-db-race]").forEach(x=>x.classList.toggle("active",x===b));
-  renderTalentDatabase();
- });
+ races.querySelectorAll("[data-db-race]").forEach(x=>x.classList.toggle("active",x.dataset.dbRace===talentDbRace));
+ if(!categories.dataset.bound){
+  categories.dataset.bound="1";
+  categories.addEventListener("click",e=>{
+   const b=e.target.closest("[data-db-category]");if(!b)return;
+   talentDbCategory=b.dataset.dbCategory;talentDbRace="All";
+   categories.querySelectorAll("[data-db-category]").forEach(x=>x.classList.toggle("active",x===b));
+   races.hidden=talentDbCategory!=="Race";
+   races.querySelectorAll("[data-db-race]").forEach(x=>x.classList.toggle("active",x.dataset.dbRace==="All"));
+   renderTalentDatabase();
+  });
+ }
+ if(!races.dataset.bound){
+  races.dataset.bound="1";
+  races.addEventListener("click",e=>{
+   const b=e.target.closest("[data-db-race]");if(!b)return;
+   talentDbRace=b.dataset.dbRace;
+   races.querySelectorAll("[data-db-race]").forEach(x=>x.classList.toggle("active",x===b));
+   renderTalentDatabase();
+  });
+ }
 }
 function renderTalentDatabase(){const list=$("talentDatabaseList");if(!list)return;initTalentDbRaceFilters();const q=normalizeText($("talentDbSearch")?.value||"");const active=document.querySelector('[data-db-tier].active')?.dataset.dbTier||"All";
  const matches=GAME.talents.filter(t=>{const race=raceName(t);const text=normalizeText([talentName(t),talentSourceName(t),t.effect_en,t.effect_cn,t.source_label,t.source_value].join(" "));return (!q||text.includes(q))&&(active==="All"||(t.tiers||[t.rank]).includes(active))&&(talentDbCategory==="All"||t.source_cat===talentDbCategory)&&(talentDbCategory!=="Race"||talentDbRace==="All"||race===talentDbRace);}).sort((a,b)=>talentName(a).localeCompare(talentName(b)));
