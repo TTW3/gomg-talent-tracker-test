@@ -186,7 +186,7 @@ function render(){
   const tr=document.createElement("tr");
   tr.innerHTML=`<td>${girlEditor(g,i)}</td>`+g.boards[b].map((t,s)=>`<td>${talentEditor(t,i,b,s)}</td>`).join("")+`<td class="tracker-delete-cell"><button class="danger" data-del="${i}">Xóa</button></td>`;
   tr.querySelector("[data-del]").onclick=()=>{if(confirm("Xóa Girl này khỏi tracker?")){db.girls.splice(i,1);save()}};
-  body.appendChild(tr);
+  body.appendChild(tr);const girlInput=tr.querySelector(".girlinput");if(girlInput)fitGirlInput(girlInput);
  });
  fillGirlSelects();fillBoardSelects();fillSlotSelects();renderLookup();renderHistory();
  $("girlCount").textContent=db.girls.length;$("talentCount").textContent=db.girls.length*BOARD_COUNT*SLOT_COUNT;$("logCount").textContent=db.log.length;
@@ -200,7 +200,7 @@ function girlEditor(g,i){
  const active=Math.min(BOARD_COUNT-1,Math.max(0,g.activeBoard||0));
  const boardTabs=Array.from({length:BOARD_COUNT},(_,b)=>{const count=(g.boards[b]||[]).filter(Boolean).length;return `<button type="button" class="board-tab ${b===active?"active":""} ${count===0?"board-empty":""}" data-board="${b}" data-g="${i}">Board ${b+1} <b>${count}/4</b></button>`}).join("");
  const total=g.boards.flat().filter(Boolean).length;
- return `<div class="girl-cell"><div class="tracker-girl-line">${portrait}<div class="autocomplete"><textarea class="girlinput tracker-girl-input" data-g="${i}" rows="2" placeholder="Gõ tên Girl..." autocomplete="off">${esc(value)}</textarea><div class="suggestions"></div></div><span class="tracker-total-count">${total}/16</span></div><div class="board-tabs">${boardTabs}</div></div>`;
+ return `<div class="girl-cell"><div class="tracker-girl-line">${portrait}<div class="autocomplete"><textarea class="girlinput" data-g="${i}" rows="1" spellcheck="false" wrap="soft" aria-label="Tên nhân vật" placeholder="Gõ tên Girl..." autocomplete="off">${esc(value)}</textarea><div class="suggestions"></div></div><span class="tracker-total-count">${total}/16</span></div><div class="board-tabs">${boardTabs}</div></div>`;
 }
 function talentEditor(t,i,b,s){
  const value=t?talentLabel(t):"";const tt=t?talentById(t):null;const sel=t?talentTier(t):"";const talentId=t?splitTalentValue(t).id:"";
@@ -217,7 +217,7 @@ function injectTrackerLayoutStyle(){if($("trackerLayoutStyle"))return;const st=d
 .tracker-girl-line{display:flex;align-items:center;gap:8px;min-width:0}
 .tracker-girl-line .autocomplete{flex:1;min-width:0}
 .tracker-girl-icon{width:42px;height:42px;object-fit:cover;border-radius:9px;flex:0 0 42px;background:#f3e4dc}
-.tracker-girl-line .girlinput{width:100%;min-width:0;box-sizing:border-box;height:44px}
+.tracker-girl-line .girlinput{display:block;width:100%;min-width:0;box-sizing:border-box;min-height:44px;height:44px;max-height:180px;resize:none;overflow:hidden;white-space:pre-wrap;overflow-wrap:anywhere;line-height:1.25;padding:8px 10px;font:inherit}
 .tracker-total-count{flex:0 0 auto;background:#35ad62;color:#fff;border-radius:8px;padding:5px 8px;font-weight:800;white-space:nowrap}
 .board-tabs{display:flex;flex-wrap:wrap;gap:5px;margin-top:7px}
 .board-tabs .board-tab{font-size:12px;padding:6px 8px;white-space:nowrap;display:inline-flex;align-items:center;gap:5px}
@@ -292,6 +292,7 @@ function findTalentSuggestions(query){
    .slice(0,8)
    .map(x=>x.item);
 }
+function fitGirlInput(input){if(!input||!input.classList.contains("girlinput"))return;input.style.height="auto";input.style.height=Math.min(Math.max(input.scrollHeight,44),180)+"px"}
 function showSuggestions(input){
  const box=input.parentElement.querySelector(".suggestions");
  const isGirl=input.classList.contains("girlinput");
@@ -318,10 +319,10 @@ document.addEventListener("click",e=>{
  db.girls[i].activeBoard=b;save();
 });
 document.addEventListener("input",e=>{
- if(e.target.matches(".girlinput,.talentinput"))showSuggestions(e.target);
+ if(e.target.matches(".girlinput,.talentinput")){if(e.target.classList.contains("girlinput"))fitGirlInput(e.target);showSuggestions(e.target);}
 });
 document.addEventListener("focusin",e=>{
- if(e.target.matches(".girlinput,.talentinput"))showSuggestions(e.target);
+ if(e.target.matches(".girlinput,.talentinput")){if(e.target.classList.contains("girlinput"))fitGirlInput(e.target);showSuggestions(e.target);}
 });
 function chooseSuggestion(suggestion){
  const input=suggestion.closest(".autocomplete")?.querySelector("input");
@@ -382,7 +383,7 @@ function chooseSuggestion(suggestion){
  // Persist without re-rendering the table. Re-rendering immediately here can
  // replace the input DOM while the browser is still processing the click/touch.
  localStorage.setItem(KEY,JSON.stringify(db));
- input.value=input.classList.contains("girlinput")?charLabel(id):talentLabel(db.girls[+input.dataset.g].boards[+input.dataset.b][+input.dataset.s]);
+ input.value=input.classList.contains("girlinput")?charLabel(id):talentLabel(db.girls[+input.dataset.g].boards[+input.dataset.b][+input.dataset.s]);if(input.classList.contains("girlinput"))fitGirlInput(input);
  const box=input.parentElement.querySelector(".suggestions");
  if(box){box.innerHTML="";box.classList.remove("open");}
 }
@@ -498,25 +499,3 @@ init();
 
 // Tier selector styling for Talent Tracker suggestions only.
 (function(){const st=document.createElement("style");st.textContent=`.talent-tier-option{gap:8px}.talent-tier-option .tier{margin-left:auto;font-size:11px;font-weight:700}.talent-tier-option small{margin-left:4px;opacity:.65}`;document.head.appendChild(st)})();
-
-
-// Tracker character-name input: direct typing with full multi-line display for long names.
-(function(){
- const st=document.createElement("style");
- st.id="trackerGirlInputWrapStyle";
- st.textContent=`
- .tracker-girl-line .tracker-girl-input{
-   display:block;width:100%;min-width:0;min-height:42px;height:auto;resize:vertical;
-   box-sizing:border-box;white-space:pre-wrap;overflow-wrap:anywhere;
-   border:1px solid #ceb7a4;border-radius:8px;background:#fff;padding:8px 9px;
-   color:var(--text,#38271e);font:inherit;line-height:1.35;
- }
- .tracker-girl-line .tracker-girl-input:focus{border-color:#a77a5a;box-shadow:0 0 0 2px #a77a5a18;outline:none}
- .tracker-girl-line .autocomplete{flex:1 1 0;min-width:0}
- @media(max-width:700px){
-   .tracker-girl-line .tracker-girl-input{font-size:12px;min-height:40px;padding:7px}
-   .tracker-girl-line{align-items:flex-start}
- }
- `;
- document.head.appendChild(st);
-})();
