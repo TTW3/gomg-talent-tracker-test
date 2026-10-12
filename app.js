@@ -53,7 +53,13 @@ function tierDot(tier){return ({Green:"🟢",Blue:"🔵",Purple:"🟣",Orange:"�
 let talentDbCategory="All",talentDbRace="All";
 function raceName(t){const label=String(t?.source_label||"");return t?.source_cat==="Race"?label.replace(/^Race:\s*/i,"").trim():""}
 function initTalentDbRaceFilters(){
- const toolbar=document.querySelector(".talent-db-toolbar");if(!toolbar||$("talentDbCategoryFilters"))return;
+ const toolbar=document.querySelector("#talentDatabaseView .talent-db-toolbar");
+ if(!toolbar)return;
+ // Clean up any filters accidentally injected into the Trait / Title / Perk toolbar by an older build.
+ document.querySelectorAll(".talent-db-toolbar #talentDbCategoryFilters, .talent-db-toolbar #talentDbRaceFilters").forEach(el=>{
+   if(!toolbar.contains(el))el.remove();
+ });
+ if(toolbar.querySelector("#talentDbCategoryFilters"))return;
  const categories=document.createElement("div");categories.id="talentDbCategoryFilters";categories.className="talent-db-category-filters";
  categories.innerHTML=["All","Race","Exclusive","Class","Element","Generic"].map((cat,i)=>`<button type="button" data-db-category="${cat}" class="${i===0?"active":""}">${cat==="All"?"All types":cat}</button>`).join("");
  const races=document.createElement("div");races.id="talentDbRaceFilters";races.className="talent-db-race-filters";races.hidden=true;
