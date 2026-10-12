@@ -14,7 +14,7 @@ function searchBox({index,kind,selected,items,placeholder}){
  const picked=items.find(p=>p.stem===selected);
  const value=picked?(kind==='character'?profileLabel(picked):`${profileLabel(picked)} — ${picked[kind].name}`):'';
  return `<div class="tb-autocomplete" data-member="${index}" data-kind="${kind}" data-selected="${esc(selected||'')}">
- <div class="tb-search-wrap">${picked?iconHTML(picked):''}<input class="tb-search-input" type="text" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-label="${esc(kind==='character'?'Nhân vật '+(index+1):kind==='trait'?'Trait':kind==='title'?'Title':'Perk')}" autocomplete="off" value="${esc(value)}" placeholder="${esc(placeholder)}" data-search-input="1"></div>
+ <div class="tb-search-wrap">${picked?iconHTML(picked):''}<div class="tb-search-input" contenteditable="true" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-label="${esc(kind==='character'?'Nhân vật '+(index+1):kind==='trait'?'Trait':kind==='title'?'Title':'Perk')}" data-placeholder="${esc(placeholder)}" data-search-input="1">${esc(value)}</div></div>
  <div class="tb-suggestions" role="listbox" hidden></div></div>`;
 }
 function render(){const host=$('teamBuilderMembers');if(!host)return;
@@ -54,8 +54,11 @@ function injectStyles(){if($('teamBuilderAutocompleteStyles'))return;const style
 #teamBuilderMembers .tb-search-wrap{display:flex;align-items:center;gap:7px;min-width:0;width:100%;box-sizing:border-box;border:1px solid var(--border-color,#d9c8bd);border-radius:9px;background:var(--input-bg,#fffaf6);padding:0 9px;min-height:40px}
 #teamBuilderMembers .tb-search-wrap:focus-within{outline:2px solid #b98368;outline-offset:1px}
 #teamBuilderMembers .tb-search-wrap>.tb-option-icon{width:26px;height:26px;flex:0 0 26px}
-#teamBuilderMembers .tb-search-input{overflow:hidden;text-overflow:ellipsis}
+#teamBuilderMembers .tb-search-input{display:block;white-space:normal;overflow-wrap:anywhere;word-break:normal;max-height:7em;overflow-y:auto;line-height:1.35;cursor:text}
 #teamBuilderMembers .tb-search-input{border:0!important;outline:0!important;box-shadow:none!important;background:transparent!important;width:100%;min-width:0;padding:9px 0!important;font:inherit;color:inherit}
+#teamBuilderMembers .tb-search-input:empty:before{content:attr(data-placeholder);color:#a18b7c;pointer-events:none}
+#teamBuilderMembers .tb-search-wrap:has(.tb-search-input:not(:empty)){align-items:flex-start}
+#teamBuilderMembers .tb-search-wrap:has(.tb-search-input:not(:empty))>.tb-option-icon{margin-top:6px}
 #teamBuilderMembers .tb-option-icon{width:30px;height:30px;flex:0 0 30px;object-fit:contain;border-radius:6px}
 #teamBuilderMembers .tb-no-icon{display:inline-flex;align-items:center;justify-content:center;background:#eee0d6;color:#78513f}
 #teamBuilderMembers .tb-suggestions{position:absolute;z-index:1000;left:0;right:0;top:calc(100% + 4px);max-height:300px;overflow:auto;background:#fffaf6;color:#34251f;border:1px solid #d8b9a7;border-radius:10px;box-shadow:0 8px 24px #3d241d30;padding:4px}
@@ -70,8 +73,8 @@ function injectStyles(){if($('teamBuilderAutocompleteStyles'))return;const style
 @media(max-width:650px){#teamBuilderMembers .team-member-head{gap:7px}#teamBuilderMembers .tb-suggestions{max-height:240px}}
 `;document.head.appendChild(style)}
 window.renderTeamBuilder=render;
-document.addEventListener('input',e=>{const input=e.target.closest('#teamBuilderMembers .tb-search-input');if(!input)return;const box=input.closest('.tb-autocomplete');showSuggestions(box,input.value)});
-document.addEventListener('focusin',e=>{const input=e.target.closest('#teamBuilderMembers .tb-search-input');if(!input)return;const box=input.closest('.tb-autocomplete');showSuggestions(box,input.value);input.select()});
+document.addEventListener('input',e=>{const input=e.target.closest('#teamBuilderMembers .tb-search-input');if(!input)return;const box=input.closest('.tb-autocomplete');showSuggestions(box,input.textContent)});
+document.addEventListener('focusin',e=>{const input=e.target.closest('#teamBuilderMembers .tb-search-input');if(!input)return;const box=input.closest('.tb-autocomplete');showSuggestions(box,input.textContent);input.select()});
 document.addEventListener('keydown',e=>{const input=e.target.closest('#teamBuilderMembers .tb-search-input');if(!input)return;const box=input.closest('.tb-autocomplete'),list=box.querySelector('.tb-suggestions');if(e.key==='Escape'){list.hidden=true;input.setAttribute('aria-expanded','false');return}if(e.key==='ArrowDown'&&!list.hidden){e.preventDefault();list.querySelector('.tb-suggestion')?.focus()}if(e.key==='Enter'&&!list.hidden){e.preventDefault();list.querySelector('.tb-suggestion')?.click()}});
 document.addEventListener('click',e=>{
  const pick=e.target.closest('#teamBuilderMembers [data-pick-stem]');if(pick){const box=pick.closest('.tb-autocomplete'),i=Number(box.dataset.member),k=box.dataset.kind;if(!team.members[i])return;team.members[i][k]=pick.dataset.pickStem;if(k==='character'){team.members[i].trait='';team.members[i].title='';team.members[i].perk=''}render();return}
