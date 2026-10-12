@@ -43,6 +43,8 @@ function showSuggestions(box,query=''){
 }
 function injectStyles(){if($('teamBuilderAutocompleteStyles'))return;const style=document.createElement('style');style.id='teamBuilderAutocompleteStyles';style.textContent=`
 #teamBuilderMembers .team-member-card{min-width:0}
+/* Keep Trait / Title / Perk headings fully visible even if global label styles constrain them. */
+#teamBuilderMembers .team-slot>label{display:block!important;width:100%!important;max-width:100%;min-width:0;box-sizing:border-box;white-space:normal!important;overflow:visible!important;text-overflow:clip!important;overflow-wrap:anywhere;line-height:1.4;margin:0 0 7px}
 #teamBuilderMembers .team-member-head{display:grid;grid-template-columns:auto minmax(0,1fr);align-items:start;gap:10px}
 #teamBuilderMembers .member-number{padding-top:32px}
 #teamBuilderMembers .member-character{min-width:0;width:100%}
