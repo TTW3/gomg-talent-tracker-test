@@ -193,8 +193,9 @@ function render(){
 function girlEditor(g,i){
  const value=g.charId?charLabel(g.charId):(g.name||"");
  const c=g.charId?charById(g.charId):null;
- const icon=c?.icon || (c?.source_id ? `https://gomg-wiki.pages.dev/assets/icons/Header/${c.source_id}.png` : "");
- const portrait=icon?`<img class="tracker-girl-icon" src="${esc(icon)}" alt="" loading="lazy" onerror="this.style.display='none'">`:"";
+ const icon=c?.icon || (c?.source_id ? `https://gomg-wiki.pages.dev/assets/icons/Header/${encodeURIComponent(c.source_id)}.png` : "");
+ const fallbackIcon=c?.source_id ? `https://gomg-wiki.pages.dev/assets/icons/Header/${encodeURIComponent(c.source_id)}.png` : "";
+ const portrait=icon?`<img class="tracker-girl-icon" src="${esc(icon)}" data-fallback="${esc(fallbackIcon)}" alt="" loading="lazy" onerror="if(this.dataset.fallback && this.src!==this.dataset.fallback){this.src=this.dataset.fallback;this.dataset.fallback='';}else{this.style.display='none';}">`:"";
  const active=Math.min(BOARD_COUNT-1,Math.max(0,g.activeBoard||0));
  const boardTabs=Array.from({length:BOARD_COUNT},(_,b)=>{const count=(g.boards[b]||[]).filter(Boolean).length;return `<button type="button" class="board-tab ${b===active?"active":""} ${count===0?"board-empty":""}" data-board="${b}" data-g="${i}">Board ${b+1} <b>${count}/4</b></button>`}).join("");
  const total=g.boards.flat().filter(Boolean).length;
