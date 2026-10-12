@@ -24,6 +24,7 @@ function talentValue(id,tier){if(!id)return "";const t=talentById(id);const tier
 function charById(id){return GAME.characters.find(x=>x.id===id)}
 function talentLabel(id){let t=talentById(id);const x=splitTalentValue(id);return t?talentName(t):(x.id||"")}
 function charLabel(id){let c=charById(id);return c?c.name_en:id||""}
+function charIcon(c){return c?.icon||(c?.source_id?`https://gomg-wiki.pages.dev/assets/icons/Header/${encodeURIComponent(c.source_id)}.png`:"")}
 function tierClass(t){return t?`tier tier-${t}`:""}
 function tierOptions(t,selected){const tiers=Array.isArray(t?.tiers)&&t.tiers.length?t.tiers:[t?.rank].filter(Boolean);const order=["Orange","Purple","Blue","Green"];const sorted=order.filter(x=>tiers.includes(x)).concat(tiers.filter(x=>!order.includes(x)));return sorted.map(x=>`<option value="${esc(x)}" ${x===selected?"selected":""}>${esc(x)}</option>`).join("")}
 const NAME_TRANSLATIONS={"伤害加深":"Deepened Damage","冬眠蛰伏":"Hibernating Ambush","剧毒唾液":"Toxic Saliva","动态视觉":"Dynamic Vision","动能转化":"Kinetic Conversion","厚实鳞甲":"Thick Scales","变温爆发":"Ectothermic Burst","变色鳞甲":"Color-Changing Scales","吸水皮肤":"Water-Absorbing Skin","奇形吹管":"Strange Flute","巨颚撕咬":"Giant Jaw Bite","强力后肢":"Powerful Hind Legs","断尾求生":"Tail-Shedding Survival","施虐打击":"Sadistic Strike","既定程序":"Preset Program","死亡翻滚":"Death Roll","沼泽霸主":"Swamp Overlord","浪潮翻涌":"Surging Tide","清脆蛙鸣":"Clear Frog Call","猎魔仪式":"Demon Hunt Ritual","疯狂生长":"Wild Growth","耐心潜伏":"Patient Ambush","能源自毁":"Energy Self-Destruct","自我诊断":"Self-Diagnosis","致命毒素":"Deadly Toxin","超载运行":"Overload","远古意志":"Ancient Will","难以清洗":"Hard to Cleanse","默默潜水":"Silent Diving"};
@@ -193,9 +194,8 @@ function render(){
 function girlEditor(g,i){
  const value=g.charId?charLabel(g.charId):(g.name||"");
  const c=g.charId?charById(g.charId):null;
- const icon=c?.icon || (c?.source_id ? `https://gomg-wiki.pages.dev/assets/icons/Header/${encodeURIComponent(c.source_id)}.png` : "");
- const fallbackIcon=c?.source_id ? `https://gomg-wiki.pages.dev/assets/icons/Header/${encodeURIComponent(c.source_id)}.png` : "";
- const portrait=icon?`<img class="tracker-girl-icon" src="${esc(icon)}" data-fallback="${esc(fallbackIcon)}" alt="" loading="lazy" onerror="if(this.dataset.fallback && this.src!==this.dataset.fallback){this.src=this.dataset.fallback;this.dataset.fallback='';}else{this.style.display='none';}">`:"";
+ const icon=c?.icon || (c?.source_id ? `https://gomg-wiki.pages.dev/assets/icons/Header/${c.source_id}.png` : "");
+ const portrait=icon?`<img class="tracker-girl-icon" src="${esc(icon)}" alt="" loading="lazy" onerror="this.style.display='none'">`:"";
  const active=Math.min(BOARD_COUNT-1,Math.max(0,g.activeBoard||0));
  const boardTabs=Array.from({length:BOARD_COUNT},(_,b)=>{const count=(g.boards[b]||[]).filter(Boolean).length;return `<button type="button" class="board-tab ${b===active?"active":""} ${count===0?"board-empty":""}" data-board="${b}" data-g="${i}">Board ${b+1} <b>${count}/4</b></button>`}).join("");
  const total=g.boards.flat().filter(Boolean).length;
@@ -299,7 +299,11 @@ function showSuggestions(input){
  box.innerHTML=items.map(x=>{
    const name=esc(talentName(x));
    const source=talentSourceName(x)&&talentName(x)!==talentSourceName(x)?`<small>${esc(talentSourceName(x))}</small>`:"";
-   if(isGirl)return `<div class="suggestion" data-id="${esc(x.id)}"><span>${name}</span>${source}</div>`;
+   if(isGirl){
+     const icon=charIcon(x);
+     const portrait=icon?`<img class="suggestion-icon" src="${esc(icon)}" alt="" loading="lazy" onerror="this.style.visibility='hidden'">`:"";
+     return `<div class="suggestion" data-id="${esc(x.id)}">${portrait}<span class="suggestion-name"><b>${esc(x.name_en||x.name||x.id)}</b>${source}</span></div>`;
+   }
    const tiers=Array.isArray(x.tiers)&&x.tiers.length?x.tiers:(x.rank?[x.rank]:["Orange"]);
    return tiers.map(tier=>`<div class="suggestion talent-tier-option" data-id="${esc(x.id)}" data-tier="${esc(tier)}"><span>${name}</span>${source}<b class="tier tier-${esc(tier)}">${esc(tier)}</b></div>`).join("");
  }).join("");
@@ -329,6 +333,22 @@ function chooseSuggestion(suggestion){
    db.girls[i].charId=c.id;
    db.girls[i].name=charLabel(c.id);
    db.girls[i].customName=false;
+   // Update the selected character portrait immediately without a page refresh.
+   const line=input.closest(".tracker-girl-line");
+   const icon=charIcon(c);
+   let portrait=line?.querySelector(".tracker-girl-icon");
+   if(icon&&line){
+     if(!portrait){
+       portrait=document.createElement("img");
+       portrait.className="tracker-girl-icon";
+       portrait.alt="";
+       portrait.loading="lazy";
+       portrait.onerror=function(){this.style.display="none"};
+       line.insertBefore(portrait,input.closest(".autocomplete"));
+     }
+     portrait.src=icon;
+     portrait.style.display="block";
+   }else if(portrait){portrait.remove();}
  }else{
    const i=+input.dataset.g,s=+input.dataset.s,b=+input.dataset.b;
    if(!db.girls[i])return;
