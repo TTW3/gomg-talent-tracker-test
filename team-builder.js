@@ -14,7 +14,7 @@ function searchBox({index,kind,selected,items,placeholder}){
  const picked=items.find(p=>p.stem===selected);
  const value=picked?(kind==='character'?profileLabel(picked):`${profileLabel(picked)} — ${picked[kind].name}`):'';
  return `<div class="tb-autocomplete" data-member="${index}" data-kind="${kind}" data-selected="${esc(selected||'')}">
- <div class="tb-search-wrap">${kind==='character'&&picked?iconHTML(picked):''}<input class="tb-search-input" type="text" role="combobox" aria-autocomplete="list" aria-expanded="false" autocomplete="off" value="${esc(value)}" placeholder="${esc(placeholder)}" data-search-input="1"></div>
+ <div class="tb-search-wrap">${picked?iconHTML(picked):''}<input class="tb-search-input" type="text" role="combobox" aria-autocomplete="list" aria-expanded="false" autocomplete="off" value="${esc(value)}" placeholder="${esc(placeholder)}" data-search-input="1"></div>
  <div class="tb-suggestions" role="listbox" hidden></div></div>`;
 }
 function render(){const host=$('teamBuilderMembers');if(!host)return;
@@ -22,7 +22,7 @@ function render(){const host=$('teamBuilderMembers');if(!host)return;
   const chosen=profiles.find(p=>p.stem===m.character);
   const slots=['trait','title','perk'].map(k=>{
    const options=choicesFor(i,k),value=m[k],picked=profiles.find(p=>p.stem===value&&p[k]?.name);
-   return `<div class="team-slot"><label>${k==='trait'?'🧬 Trait':k==='title'?'🏷️ Title':'✨ Perk'}</label>${searchBox({index:i,kind:k,selected:value,items:options,placeholder:`Tìm ${k==='trait'?'Trait':k==='title'?'Title':'Perk'} hoặc tên nhân vật…`})}${picked?`<div class="chosen-source">Nguồn: ${esc(profileLabel(picked))} · ${esc(picked[k].id||'')}</div><p class="chosen-effect">${esc(effectText(picked,k))}</p>`:'<p class="chosen-effect muted">Chưa chọn hiệu ứng</p>'}</div>`
+   return `<div class="team-slot"><label>${k==='trait'?'🧬 Trait':k==='title'?'🏷️ Title':'✨ Perk'}</label>${searchBox({index:i,kind:k,selected:value,items:options,placeholder:`Tìm ${k==='trait'?'Trait':k==='title'?'Title':'Perk'} hoặc tên nhân vật…`})}${picked?`<div class="chosen-source">${iconHTML(picked)} Nguồn: ${esc(profileLabel(picked))} · ${esc(picked[k].id||'')}</div><p class="chosen-effect">${esc(effectText(picked,k))}</p>`:'<p class="chosen-effect muted">Chưa chọn hiệu ứng</p>'}</div>`
   }).join('');
   return `<article class="team-member-card"><div class="team-member-head"><span class="member-number">${i+1}</span><div class="member-character"><b>Nhân vật ${i+1}</b>${searchBox({index:i,kind:'character',selected:m.character,items:profiles,placeholder:'Gõ tên nhân vật để tìm…'})}</div></div>${slots}</article>`
  }).join('');
@@ -61,7 +61,7 @@ function injectStyles(){if($('teamBuilderAutocompleteStyles'))return;const style
 #teamBuilderMembers .tb-suggestion-text strong{font-size:13px;font-weight:600}
 #teamBuilderMembers .tb-suggestion-text small{font-size:11px;line-height:1.35;color:#806f66;white-space:normal}
 #teamBuilderMembers .tb-no-results{padding:12px;font-size:12px;color:#806f66}
-#teamBuilderMembers .chosen-effect{white-space:pre-line;overflow-wrap:anywhere}
+#teamBuilderMembers .chosen-source{display:flex;align-items:center;gap:6px;flex-wrap:wrap}#teamBuilderMembers .chosen-source .tb-option-icon{width:22px;height:22px;flex-basis:22px}#teamBuilderMembers .chosen-effect{white-space:pre-line;overflow-wrap:anywhere}
 @media(max-width:650px){#teamBuilderMembers .team-member-head{gap:7px}#teamBuilderMembers .tb-suggestions{max-height:240px}}
 `;document.head.appendChild(style)}
 window.renderTeamBuilder=render;
