@@ -55,19 +55,33 @@ function raceName(t){const label=String(t?.source_label||"");return t?.source_ca
 function initTalentDbRaceFilters(){
  const toolbar=document.querySelector("#talentDatabaseView .talent-db-toolbar");
  if(!toolbar)return;
- // Clean up any filters accidentally injected into the Trait / Title / Perk toolbar by an older build.
- document.querySelectorAll(".talent-db-toolbar #talentDbCategoryFilters, .talent-db-toolbar #talentDbRaceFilters").forEach(el=>{
-   if(!toolbar.contains(el))el.remove();
- });
- if(toolbar.querySelector("#talentDbCategoryFilters"))return;
- const categories=document.createElement("div");categories.id="talentDbCategoryFilters";categories.className="talent-db-category-filters";
+ // Remove duplicate/incorrectly placed filter rows left by previous versions.
+ document.querySelectorAll("#talentDbCategoryFilters, #talentDbRaceFilters").forEach(el=>el.remove());
+ const categories=document.createElement("div");
+ categories.id="talentDbCategoryFilters";
+ categories.className="talent-db-category-filters";
  categories.innerHTML=["All","Race","Exclusive","Class","Element","Generic"].map((cat,i)=>`<button type="button" data-db-category="${cat}" class="${i===0?"active":""}">${cat==="All"?"All types":cat}</button>`).join("");
- const races=document.createElement("div");races.id="talentDbRaceFilters";races.className="talent-db-race-filters";races.hidden=true;
+ const races=document.createElement("div");
+ races.id="talentDbRaceFilters";
+ races.className="talent-db-race-filters";
+ races.hidden=talentDbCategory!=="Race";
  const raceNames=[...new Set(GAME.talents.filter(t=>t.source_cat==="Race").map(raceName).filter(Boolean))].sort((a,b)=>a.localeCompare(b));
  races.innerHTML=`<button type="button" class="active" data-db-race="All">All races</button>`+raceNames.map(r=>`<button type="button" data-db-race="${esc(r)}">${esc(r)}</button>`).join("");
  toolbar.after(categories,races);
- categories.addEventListener("click",e=>{const b=e.target.closest("[data-db-category]");if(!b)return;talentDbCategory=b.dataset.dbCategory;talentDbRace="All";categories.querySelectorAll("[data-db-category]").forEach(x=>x.classList.toggle("active",x===b));races.hidden=talentDbCategory!=="Race";races.querySelectorAll("[data-db-race]").forEach(x=>x.classList.toggle("active",x.dataset.dbRace==="All"));renderTalentDatabase()});
- races.addEventListener("click",e=>{const b=e.target.closest("[data-db-race]");if(!b)return;talentDbRace=b.dataset.dbRace;races.querySelectorAll("[data-db-race]").forEach(x=>x.classList.toggle("active",x===b));renderTalentDatabase()});
+ categories.addEventListener("click",e=>{
+  const b=e.target.closest("[data-db-category]");if(!b)return;
+  talentDbCategory=b.dataset.dbCategory;talentDbRace="All";
+  categories.querySelectorAll("[data-db-category]").forEach(x=>x.classList.toggle("active",x===b));
+  races.hidden=talentDbCategory!=="Race";
+  races.querySelectorAll("[data-db-race]").forEach(x=>x.classList.toggle("active",x.dataset.dbRace==="All"));
+  renderTalentDatabase();
+ });
+ races.addEventListener("click",e=>{
+  const b=e.target.closest("[data-db-race]");if(!b)return;
+  talentDbRace=b.dataset.dbRace;
+  races.querySelectorAll("[data-db-race]").forEach(x=>x.classList.toggle("active",x===b));
+  renderTalentDatabase();
+ });
 }
 function renderTalentDatabase(){const list=$("talentDatabaseList");if(!list)return;initTalentDbRaceFilters();const q=normalizeText($("talentDbSearch")?.value||"");const active=document.querySelector('[data-db-tier].active')?.dataset.dbTier||"All";
  const matches=GAME.talents.filter(t=>{const race=raceName(t);const text=normalizeText([talentName(t),talentSourceName(t),t.effect_en,t.effect_cn,t.source_label,t.source_value].join(" "));return (!q||text.includes(q))&&(active==="All"||(t.tiers||[t.rank]).includes(active))&&(talentDbCategory==="All"||t.source_cat===talentDbCategory)&&(talentDbCategory!=="Race"||talentDbRace==="All"||race===talentDbRace);}).sort((a,b)=>talentName(a).localeCompare(talentName(b)));
