@@ -1,0 +1,123 @@
+:root{--bg:#f5eadf;--card:#fffaf5;--brown:#6e4934;--line:#dec9b7;--text:#38271e;--muted:#806d60;--good:#4f7d55;--warn:#a36d2e}
+*{box-sizing:border-box}body{margin:0;background:linear-gradient(#f6ede4,#efe0d1);color:var(--text);font:14px system-ui,-apple-system,Segoe UI,Arial,sans-serif}
+button,input,select{font:inherit}button,.file-btn{border:1px solid var(--line);background:#f7eee6;color:var(--text);border-radius:9px;padding:9px 13px;cursor:pointer}button:hover,.file-btn:hover{filter:brightness(.97)}.primary{background:var(--brown);border-color:var(--brown);color:#fff}.danger{background:#f3d7d0}
+.topbar{height:68px;background:var(--brown);color:#fff;display:flex;align-items:center;justify-content:space-between;padding:0 max(18px,calc((100% - 1180px)/2));position:sticky;top:0;z-index:10;box-shadow:0 2px 12px #0003}.brand{display:flex;align-items:center;gap:10px}.brand-mark{width:40px;height:40px;border-radius:10px;background:#d5a36d;display:grid;place-items:center;font-weight:900;color:#4a2f21}.brand h1{font-size:19px;margin:0}.brand small{opacity:.75}.top-actions{display:flex;gap:8px}.top-actions button,.top-actions .file-btn{background:#805740;border-color:#a27a5e;color:#fff}.file-btn input{display:none}
+#dbBadge{font-size:10px;background:#d6a66e;color:#4a2f21;border-radius:20px;padding:3px 7px;vertical-align:middle}.status{font-size:11px;color:var(--good)}
+main{max-width:1180px;margin:auto;padding:18px}.hero{display:flex;justify-content:space-between;gap:20px;align-items:center;padding:20px 4px}.hero h2{margin:0 0 5px;font-size:25px}.hero p{margin:0;color:var(--muted)}.stats{display:flex;gap:9px}.stats div{min-width:88px;text-align:center;background:#fff8f1;border:1px solid var(--line);border-radius:12px;padding:10px}.stats b{display:block;font-size:21px;color:var(--brown)}.stats span{font-size:11px;color:var(--muted)}
+.card{background:var(--card);border:1px solid var(--line);border-radius:13px;padding:15px;margin-bottom:15px;box-shadow:0 3px 12px #6e493412}.toolbar{display:flex;gap:9px}.toolbar input{flex:1}
+input,select{border:1px solid #ceb7a4;border-radius:8px;background:#fff;padding:9px;color:var(--text);outline:none}input:focus,select:focus{border-color:#a77a5a;box-shadow:0 0 0 2px #a77a5a18}
+.section-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}.section-head h2{font-size:17px;margin:0}.muted{font-size:12px;color:var(--muted);margin-left:7px}.table-wrap{overflow:auto}
+table{width:100%;max-width:100%;border-collapse:collapse;table-layout:fixed;min-width:0}th,td{padding:8px;border-bottom:1px solid #eadbd0;text-align:left}th{background:#ead8c8;color:#553a2b}td input{width:100%;min-width:0}.slotselect{min-width:180px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:15px}.swapgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}.swapgrid label{display:flex;flex-direction:column;gap:5px;font-size:12px;font-weight:700}.wide{width:100%}.hint{color:var(--muted);font-size:12px;line-height:1.5}
+.lookup{margin-top:10px;min-height:110px}.lookup-item{padding:8px 0;border-bottom:1px solid #eadbd0}.pill{display:inline-block;background:#eee0d3;border-radius:20px;padding:3px 8px;margin-left:5px;font-size:12px}.tier{font-weight:700}.tier-Orange{color:#c87919}.tier-Purple{color:#8054a5}.tier-Blue{color:#3675a8}.tier-Green{color:#4d8a54}.history{max-height:310px;overflow:auto}.history-row{padding:8px 0;border-bottom:1px solid #eadbd0;font-size:13px}.history-row time{color:var(--muted);font-size:11px;display:block;margin-bottom:2px}.info{font-size:13px}.info h3{margin-top:0}
+footer{display:flex;justify-content:space-between;color:var(--muted);font-size:11px;padding:4px 3px 30px}@media(max-width:760px){.topbar{padding:0 12px}.hero{display:block}.stats{margin-top:12px}.grid2{grid-template-columns:1fr}.toolbar{flex-wrap:wrap}.toolbar input{min-width:100%}.swapgrid{grid-template-columns:1fr 1fr}}
+
+.autocomplete{position:relative;min-width:0}.autocomplete input{width:100%}
+@media(min-width:601px){
+  .table-wrap{overflow-x:hidden}
+  table{min-width:0;max-width:100%}
+  th,td{min-width:0}
+  thead th:first-child,tbody td:first-child{width:24%}
+  thead th:nth-child(2),thead th:nth-child(3),thead th:nth-child(4),thead th:nth-child(5),tbody td:nth-child(2),tbody td:nth-child(3),tbody td:nth-child(4),tbody td:nth-child(5){width:17.5%}
+  thead th:last-child,tbody td:last-child{width:6%}
+}
+
+.girlinput{min-width:0}.talentinput{min-width:0}
+.suggestions{display:none;position:absolute;left:0;top:calc(100% + 3px);width:max(100%,260px);max-height:240px;overflow:auto;background:#fffaf5;border:1px solid var(--line);border-radius:9px;box-shadow:0 8px 20px #6e493426;z-index:1000}
+.suggestions.open{display:block}.suggestion{padding:8px 10px;cursor:pointer;border-bottom:1px solid #eadbd0;display:flex;justify-content:space-between;gap:8px;align-items:center}
+.suggestion:last-child{border-bottom:0}.suggestion:hover{background:#f1e2d5}.suggestion span{font-weight:600}.suggestion small{color:var(--muted);font-size:10px;text-align:right}
+
+.board-tabs{display:flex;gap:4px;flex-wrap:wrap;margin-top:6px}.board-tab{border:1px solid #d8b9a6;background:#fff7f0;color:#6d4b3c;border-radius:6px;padding:3px 7px;font-size:11px;cursor:pointer}.board-tab.active{background:#ead2c3;font-weight:700}.girl-cell{min-width:0;width:100%;overflow:visible}.swapgrid{grid-template-columns:repeat(3,minmax(0,1fr));}.lookup-item{gap:6px}.lookup-item .pill{white-space:nowrap}@media(max-width:900px){.swapgrid{grid-template-columns:1fr 1fr}}
+
+.sync-card{border:1px solid rgba(120,80,40,.22)}
+.syncgrid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}.syncgrid label{display:flex;flex-direction:column;gap:6px;font-weight:700}.syncgrid input{width:100%}.sync-actions{display:flex;gap:10px;margin-top:12px}.sync-actions button{flex:1}@media(max-width:800px){.syncgrid{grid-template-columns:1fr}.sync-actions{flex-direction:column}}
+/* Character portraits in Girl autocomplete/selection */
+.girl-autocomplete{display:flex;align-items:center;gap:6px}
+.girl-autocomplete .girlinput{flex:1;min-width:0}
+.selected-girl-icon{width:32px;height:32px;flex:0 0 32px;border-radius:7px;overflow:hidden;background:#eadbd0;display:flex;align-items:center;justify-content:center}
+.selected-girl-icon img{width:100%;height:100%;object-fit:cover;display:block}
+.suggestion-icon{width:34px;height:34px;flex:0 0 34px;border-radius:7px;object-fit:cover;background:#eadbd0;display:block}
+.suggestion-name{flex:1;min-width:0}
+.suggestion small{margin-left:auto}
+
+/* Talent descriptions / detail popup */
+.suggestion{align-items:flex-start}.suggestion-name{display:flex;flex-direction:column;gap:3px}.suggestion-desc{font-size:11px;line-height:1.35;color:var(--muted);font-weight:400;white-space:normal;max-width:520px}.lookup-desc{margin-top:6px;padding:7px 9px;background:#f7eee6;border-radius:8px;color:#665449;font-size:12px;line-height:1.45}.talent-modal{position:fixed;inset:0;background:#2d201899;display:grid;place-items:center;padding:18px;z-index:3000}.talent-modal[hidden]{display:none}.talent-modal-card{width:min(620px,100%);max-height:min(75vh,680px);overflow:auto;background:var(--card);border:1px solid var(--line);border-radius:15px;box-shadow:0 18px 50px #0004;padding:17px}.talent-modal-head{display:flex;justify-content:space-between;gap:12px;align-items:flex-start;border-bottom:1px solid #eadbd0;padding-bottom:10px}.talent-modal-head h3{margin:0 0 7px;font-size:18px}.talent-modal-head button{width:36px;height:36px;padding:0;font-size:23px;line-height:1}.talent-modal-body{padding-top:14px;font-size:14px;line-height:1.6;white-space:pre-wrap}.modal-source{display:inline-block;margin-left:6px;color:var(--muted);font-size:11px}
+
+.talent-editor{display:flex;align-items:center;gap:5px}.talent-editor .autocomplete{flex:1;min-width:0}.talent-info-btn{width:32px;height:32px;padding:0;flex:0 0 32px;border-radius:8px;font-weight:800;color:var(--brown);background:#f4e5d8}.talent-info-btn:hover{background:#ead5c5}
+
+/* Responsive SWAP layout */
+.swapgrid select{width:100%;min-width:0}
+@media(max-width:600px){
+  .swapgrid{grid-template-columns:1fr;gap:9px}
+  .swapgrid label{font-size:12px}
+  .swapgrid select{width:100%;min-width:0}
+}
+
+/* Responsive Girl/Talent list: turn the wide table into a compact card on phones. */
+@media(max-width:600px){
+  .table-wrap{overflow:visible}
+  table{display:block;width:100%;min-width:0;border-collapse:separate}
+  thead{display:none}
+  tbody{display:block}
+  tbody tr{display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:10px 0;border-bottom:1px solid #eadbd0}
+  tbody td{display:block;min-width:0;padding:0;border:0}
+  tbody td:first-child{grid-column:1 / -1;background:#fff7f0;border:1px solid #eadbd0;border-radius:10px;padding:9px}
+  tbody td:nth-child(2),tbody td:nth-child(3),tbody td:nth-child(4),tbody td:nth-child(5){background:#fff;border:1px solid #eadbd0;border-radius:10px;padding:8px}
+  tbody td:nth-child(2)::before,tbody td:nth-child(3)::before,tbody td:nth-child(4)::before,tbody td:nth-child(5)::before{display:block;margin-bottom:5px;font-size:11px;font-weight:800;color:var(--muted)}
+  tbody td:nth-child(2)::before{content:"Talent 1"}
+  tbody td:nth-child(3)::before{content:"Talent 2"}
+  tbody td:nth-child(4)::before{content:"Talent 3"}
+  tbody td:nth-child(5)::before{content:"Talent 4"}
+  tbody td:nth-child(6){grid-column:1 / -1;text-align:right}
+  .girl-cell{min-width:0}
+  .girlinput{min-width:0}
+  .talentinput{min-width:0}
+  .talent-editor{min-width:0}
+  .talent-info-btn{flex:0 0 32px}
+}
+
+/* Allow vertical touch scrolling in Girl/Talent suggestion lists. */
+.suggestions{touch-action:pan-y;-webkit-overflow-scrolling:touch}
+
+/* Board talent count */
+.board-tab .board-count{font-size:.78em;opacity:.8;margin-left:3px;font-weight:600}
+@media(max-width:600px){
+  .board-tab .board-count{font-size:.76em}
+}
+
+/* FIX9: force desktop talent table to fit viewport without horizontal scrolling */
+@media(min-width:601px){
+  .table-wrap{width:100%;max-width:100%;overflow-x:hidden}
+  .girl-cell{min-width:0!important;width:100%;max-width:100%;overflow:visible}
+  .talent-editor{min-width:0;width:100%;max-width:100%}
+  .talent-editor .autocomplete{min-width:0;width:calc(100% - 37px);max-width:calc(100% - 37px)}
+  .talent-editor .talent-info-btn{flex:0 0 32px}
+}
+
+.view-switcher{display:flex;gap:8px;margin:0 0 15px}.view-switcher button{min-width:150px}.talent-database-view{min-height:500px}.talent-db-toolbar{display:flex;gap:10px;align-items:center;margin-bottom:14px}.talent-db-toolbar>input{flex:1;min-width:0}.talent-tier-filters{display:flex;gap:6px;flex-wrap:wrap}.talent-tier-filters button{padding:7px 9px;font-size:12px}.talent-tier-filters button.active{background:#ead2c3;font-weight:700}.talent-db-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.talent-db-item{border:1px solid #eadbd0;border-radius:11px;background:#fffdf9;padding:12px}.talent-db-head{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}.talent-db-head h3{margin:0;font-size:15px}.talent-db-head small{color:var(--muted);font-size:11px}.db-tiers{display:flex;gap:4px;flex-wrap:wrap;justify-content:flex-end}.db-tier{font-size:10px;padding:3px 7px;border-radius:20px;background:#eee0d3;font-weight:700}.talent-db-desc{margin-top:8px;font-size:12px;line-height:1.5}.talent-db-source{margin-top:7px;color:var(--muted);font-size:10px}.talent-db-usage{margin-top:9px;padding-top:8px;border-top:1px solid #eadbd0;font-size:11px;line-height:1.5}.db-use{display:inline-block;margin:2px 3px 2px 0;padding:3px 6px;border-radius:6px;background:#f1e2d5}.db-unused{color:var(--muted)}
+@media(max-width:760px){.view-switcher button{flex:1;min-width:0}.talent-db-toolbar{display:block}.talent-tier-filters{margin-top:9px}.talent-db-list{grid-template-columns:1fr}.talent-db-head{display:block}.db-tiers{justify-content:flex-start;margin-top:7px}}
+
+/* Talent Database: show every tier's stored parameter values clearly. */
+.talent-tier-details{margin-top:10px;padding-top:9px;border-top:1px solid #eadbd0}.talent-tier-details> b{display:block;font-size:11px;margin-bottom:7px;color:var(--brown)}.talent-tier-row{padding:7px 0;border-top:1px dashed #eadbd0}.talent-tier-row:first-of-type{border-top:0}.talent-tier-row-head{margin-bottom:4px}.talent-tier-desc{font-size:11px;line-height:1.45}.db-stats{display:flex;flex-wrap:wrap;gap:4px;margin-top:5px}.db-stat{font-size:10px;padding:3px 6px;border-radius:6px;background:#f1e2d5}.db-stat b{font-weight:700}
+
+/* Fix: hidden tracker/database sections must stay hidden even with grid/flex display rules */
+.grid2[hidden],
+.tracker-view[hidden],
+.talent-database-view[hidden] {
+  display: none !important;
+}
+
+
+/* Isolated Trait / Title / Perk database view */
+.extras-card{position:relative;border:1px solid var(--border,#ddd);border-radius:12px;padding:14px;margin:10px 0;background:var(--card,#fff)}
+.extras-character{display:flex;align-items:center;gap:10px;margin-bottom:12px;min-width:0}
+.extras-character>div{display:flex;flex-direction:column;gap:3px;min-width:0;flex:1}
+.extras-character small{font-size:11px;opacity:.7;overflow-wrap:anywhere}
+.extras-character a{font-size:12px;white-space:nowrap}
+.extras-icon{width:42px;height:42px;object-fit:contain;border-radius:8px;background:rgba(127,127,127,.08);flex-shrink:0}
+.extras-effects{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px}
+.extras-effect{border-radius:9px;padding:10px;background:rgba(127,127,127,.06);min-width:0}
+.extras-effect h4{margin:0 0 5px;font-size:13px;overflow-wrap:anywhere}
+.extras-meta{font-size:11px;opacity:.7;margin-bottom:7px;overflow-wrap:anywhere}
+.extras-effect p{font-size:12px;line-height:1.5;margin:0;overflow-wrap:anywhere}
+@media(max-width:700px){.extras-effects{grid-template-columns:1fr}.extras-card{padding:10px}.extras-icon{width:36px;height:36px}}
