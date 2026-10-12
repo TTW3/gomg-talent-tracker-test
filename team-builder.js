@@ -14,7 +14,8 @@ function searchBox({index,kind,selected,items,placeholder}){
  const picked=items.find(p=>p.stem===selected);
  const value=picked?(kind==='character'?profileLabel(picked):`${profileLabel(picked)} — ${picked[kind].name}`):'';
  return `<div class="tb-autocomplete" data-member="${index}" data-kind="${kind}" data-selected="${esc(selected||'')}">
- <div class="tb-search-wrap">${picked?iconHTML(picked):''}<input class="tb-search-input" type="text" role="combobox" aria-autocomplete="list" aria-expanded="false" autocomplete="off" value="${esc(value)}" placeholder="${esc(placeholder)}" data-search-input="1"></div>
+ ${picked?`<div class="tb-picked-label">${iconHTML(picked)}<span>${esc(value)}</span></div>`:''}
+ <div class="tb-search-wrap"><input class="tb-search-input" type="text" role="combobox" aria-autocomplete="list" aria-expanded="false" autocomplete="off" value="" placeholder="${esc(picked?'Nhấn để tìm hoặc đổi lựa chọn…':placeholder)}" data-search-input="1"></div>
  <div class="tb-suggestions" role="listbox" hidden></div></div>`;
 }
 function render(){const host=$('teamBuilderMembers');if(!host)return;
@@ -22,7 +23,7 @@ function render(){const host=$('teamBuilderMembers');if(!host)return;
   const chosen=profiles.find(p=>p.stem===m.character);
   const slots=['trait','title','perk'].map(k=>{
    const options=choicesFor(i,k),value=m[k],picked=profiles.find(p=>p.stem===value&&p[k]?.name);
-   return `<div class="team-slot"><label>${k==='trait'?'🧬 Trait':k==='title'?'🏷️ Title':'✨ Perk'}</label>${searchBox({index:i,kind:k,selected:value,items:options,placeholder:`Tìm ${k==='trait'?'Trait':k==='title'?'Title':'Perk'} hoặc tên nhân vật…`})}${picked?`<div class="chosen-source">${iconHTML(picked)} Nguồn: ${esc(profileLabel(picked))} · ${esc(picked[k].id||'')}</div><p class="chosen-effect">${esc(effectText(picked,k))}</p>`:'<p class="chosen-effect muted">Chưa chọn hiệu ứng</p>'}</div>`
+   return `<div class="team-slot"><label>${k==='trait'?'🧬 Trait':k==='title'?'🏷️ Title':'✨ Perk'}</label>${searchBox({index:i,kind:k,selected:value,items:options,placeholder:`Tìm ${k==='trait'?'Trait':k==='title'?'Title':'Perk'} hoặc tên nhân vật…`})}${picked?`<div class="chosen-source">Nguồn: ${esc(profileLabel(picked))} · ${esc(picked[k].id||'')}</div><p class="chosen-effect">${esc(effectText(picked,k))}</p>`:'<p class="chosen-effect muted">Chưa chọn hiệu ứng</p>'}</div>`
   }).join('');
   return `<article class="team-member-card"><div class="team-member-head"><span class="member-number">${i+1}</span><div class="member-character"><b>Nhân vật ${i+1}</b>${searchBox({index:i,kind:'character',selected:m.character,items:profiles,placeholder:'Gõ tên nhân vật để tìm…'})}</div></div>${slots}</article>`
  }).join('');
@@ -43,13 +44,14 @@ function showSuggestions(box,query=''){
 }
 function injectStyles(){if($('teamBuilderAutocompleteStyles'))return;const style=document.createElement('style');style.id='teamBuilderAutocompleteStyles';style.textContent=`
 #teamBuilderMembers .team-member-card{min-width:0}
-/* Keep Trait / Title / Perk headings fully visible even if global label styles constrain them. */
-#teamBuilderMembers .team-slot>label{display:block!important;width:100%!important;max-width:100%;min-width:0;box-sizing:border-box;white-space:normal!important;overflow:visible!important;text-overflow:clip!important;overflow-wrap:anywhere;line-height:1.4;margin:0 0 7px}
 #teamBuilderMembers .team-member-head{display:grid;grid-template-columns:auto minmax(0,1fr);align-items:start;gap:10px}
 #teamBuilderMembers .member-number{padding-top:32px}
 #teamBuilderMembers .member-character{min-width:0;width:100%}
 #teamBuilderMembers .member-character>b{display:block;margin-bottom:6px}
 #teamBuilderMembers .tb-autocomplete{position:relative;width:100%;min-width:0}
+#teamBuilderMembers .tb-picked-label{display:flex;align-items:flex-start;gap:8px;width:100%;min-width:0;margin-bottom:6px;padding:7px 8px;border:1px solid #e2c8b6;border-radius:8px;background:#fff7f0;line-height:1.4}
+#teamBuilderMembers .tb-picked-label>span{flex:1;min-width:0;white-space:normal;overflow-wrap:anywhere;word-break:normal;font-size:12px}
+#teamBuilderMembers .tb-picked-label .tb-option-icon{width:28px;height:28px;flex-basis:28px}
 #teamBuilderMembers .tb-search-wrap{display:flex;align-items:center;gap:7px;min-width:0;width:100%;box-sizing:border-box;border:1px solid var(--border-color,#d9c8bd);border-radius:9px;background:var(--input-bg,#fffaf6);padding:0 9px;min-height:40px}
 #teamBuilderMembers .tb-search-wrap:focus-within{outline:2px solid #b98368;outline-offset:1px}
 #teamBuilderMembers .tb-search-input{border:0!important;outline:0!important;box-shadow:none!important;background:transparent!important;width:100%;min-width:0;padding:9px 0!important;font:inherit;color:inherit}
@@ -63,7 +65,7 @@ function injectStyles(){if($('teamBuilderAutocompleteStyles'))return;const style
 #teamBuilderMembers .tb-suggestion-text strong{font-size:13px;font-weight:600}
 #teamBuilderMembers .tb-suggestion-text small{font-size:11px;line-height:1.35;color:#806f66;white-space:normal}
 #teamBuilderMembers .tb-no-results{padding:12px;font-size:12px;color:#806f66}
-#teamBuilderMembers .chosen-source{display:flex;align-items:center;gap:6px;flex-wrap:wrap}#teamBuilderMembers .chosen-source .tb-option-icon{width:22px;height:22px;flex-basis:22px}#teamBuilderMembers .chosen-effect{white-space:pre-line;overflow-wrap:anywhere}
+#teamBuilderMembers .chosen-effect{white-space:pre-line;overflow-wrap:anywhere}
 @media(max-width:650px){#teamBuilderMembers .team-member-head{gap:7px}#teamBuilderMembers .tb-suggestions{max-height:240px}}
 `;document.head.appendChild(style)}
 window.renderTeamBuilder=render;
