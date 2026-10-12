@@ -200,7 +200,7 @@ function girlEditor(g,i){
  const active=Math.min(BOARD_COUNT-1,Math.max(0,g.activeBoard||0));
  const boardTabs=Array.from({length:BOARD_COUNT},(_,b)=>{const count=(g.boards[b]||[]).filter(Boolean).length;return `<button type="button" class="board-tab ${b===active?"active":""} ${count===0?"board-empty":""}" data-board="${b}" data-g="${i}">Board ${b+1} <b>${count}/4</b></button>`}).join("");
  const total=g.boards.flat().filter(Boolean).length;
- return `<div class="girl-cell"><div class="tracker-girl-line">${portrait}<div class="autocomplete"><input class="girlinput" data-g="${i}" value="${esc(value)}" placeholder="Gõ tên Girl..." autocomplete="off"><div class="suggestions"></div></div><span class="tracker-total-count">${total}/16</span></div><div class="board-tabs">${boardTabs}</div></div>`;
+ return `<div class="girl-cell"><div class="tracker-girl-line">${portrait}<div class="autocomplete"><textarea class="girlinput tracker-girl-input" data-g="${i}" rows="2" placeholder="Gõ tên Girl..." autocomplete="off">${esc(value)}</textarea><div class="suggestions"></div></div><span class="tracker-total-count">${total}/16</span></div><div class="board-tabs">${boardTabs}</div></div>`;
 }
 function talentEditor(t,i,b,s){
  const value=t?talentLabel(t):"";const tt=t?talentById(t):null;const sel=t?talentTier(t):"";const talentId=t?splitTalentValue(t).id:"";
@@ -498,3 +498,25 @@ init();
 
 // Tier selector styling for Talent Tracker suggestions only.
 (function(){const st=document.createElement("style");st.textContent=`.talent-tier-option{gap:8px}.talent-tier-option .tier{margin-left:auto;font-size:11px;font-weight:700}.talent-tier-option small{margin-left:4px;opacity:.65}`;document.head.appendChild(st)})();
+
+
+// Tracker character-name input: direct typing with full multi-line display for long names.
+(function(){
+ const st=document.createElement("style");
+ st.id="trackerGirlInputWrapStyle";
+ st.textContent=`
+ .tracker-girl-line .tracker-girl-input{
+   display:block;width:100%;min-width:0;min-height:42px;height:auto;resize:vertical;
+   box-sizing:border-box;white-space:pre-wrap;overflow-wrap:anywhere;
+   border:1px solid #ceb7a4;border-radius:8px;background:#fff;padding:8px 9px;
+   color:var(--text,#38271e);font:inherit;line-height:1.35;
+ }
+ .tracker-girl-line .tracker-girl-input:focus{border-color:#a77a5a;box-shadow:0 0 0 2px #a77a5a18;outline:none}
+ .tracker-girl-line .autocomplete{flex:1 1 0;min-width:0}
+ @media(max-width:700px){
+   .tracker-girl-line .tracker-girl-input{font-size:12px;min-height:40px;padding:7px}
+   .tracker-girl-line{align-items:flex-start}
+ }
+ `;
+ document.head.appendChild(st);
+})();
