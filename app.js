@@ -325,7 +325,7 @@ document.addEventListener("focusin",e=>{
  if(e.target.matches(".girlinput,.talentinput")){if(e.target.classList.contains("girlinput"))fitGirlInput(e.target);showSuggestions(e.target);}
 });
 function chooseSuggestion(suggestion){
- const input=suggestion.closest(".autocomplete")?.querySelector("input");
+ const input=suggestion.closest(".autocomplete")?.querySelector(".girlinput,.talentinput");
  if(!input)return;
  const id=suggestion.dataset.id;
  if(input.classList.contains("girlinput")){
