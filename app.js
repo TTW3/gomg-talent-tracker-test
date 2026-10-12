@@ -132,17 +132,18 @@ function saveSilently(){localStorage.setItem(KEY,JSON.stringify(db))}
 function injectTalentTierStyle(){if(document.getElementById("talentTierStyle"))return;const st=document.createElement("style");st.id="talentTierStyle";st.textContent=".talent-editor{display:flex;gap:6px;align-items:center}.talent-editor .autocomplete{flex:1;min-width:0}.talent-tier-select{width:92px;min-height:34px;border:1px solid var(--border,#ddd);border-radius:8px;background:var(--input-bg,transparent);color:inherit}.talent-tier-select:disabled{opacity:.55}.tracker-girl-line{display:flex;align-items:center;gap:8px}.tracker-girl-line .autocomplete{flex:1;min-width:0}.tracker-girl-icon{width:38px;height:38px;object-fit:cover;border-radius:8px;flex:0 0 38px}.tracker-talent-info{flex:0 0 28px;width:28px;height:28px;padding:0;border-radius:50%;font-weight:800;line-height:1}.tracker-talent-info:disabled{opacity:.3}@media(max-width:700px){.talent-editor{flex-wrap:wrap}.talent-editor .autocomplete{flex:1 1 calc(100% - 38px)}.talent-tier-select{width:100%}}";document.head.appendChild(st)}
 
 function initCharacterExtras(){
- const btn=$("characterExtrasViewBtn"),talentBtn=$("databaseViewBtn"),trackerBtn=$("trackerViewBtn"),view=$("characterExtrasView");
+ const btn=$("characterExtrasViewBtn"),talentBtn=$("databaseViewBtn"),trackerBtn=$("trackerViewBtn"),view=$("characterExtrasView"),teamBtn=$("teamBuilderViewBtn"),teamView=$("teamBuilderView");
  if(!btn||!talentBtn||!trackerBtn||!view)return;
  function show(which){
-  const extras=which==="extras",database=which==="database";
-  document.querySelectorAll(".tracker-view").forEach(x=>x.hidden=database||extras);
-  $("talentDatabaseView").hidden=!database;view.hidden=!extras;
-  trackerBtn.classList.toggle("primary",!database&&!extras);
-  talentBtn.classList.toggle("primary",database);btn.classList.toggle("primary",extras);
-  if(database)renderTalentDatabase();if(extras)renderCharacterExtras();
+  const extras=which==="extras",database=which==="database",builder=which==="builder";
+  document.querySelectorAll(".tracker-view").forEach(x=>x.hidden=database||extras||builder);
+  $("talentDatabaseView").hidden=!database;view.hidden=!extras;if(teamView)teamView.hidden=!builder;
+  trackerBtn.classList.toggle("primary",!database&&!extras&&!builder);
+  talentBtn.classList.toggle("primary",database);btn.classList.toggle("primary",extras);if(teamBtn)teamBtn.classList.toggle("primary",builder);
+  if(database)renderTalentDatabase();if(extras)renderCharacterExtras();if(builder&&window.renderTeamBuilder)window.renderTeamBuilder();
  }
  btn.addEventListener("click",()=>show("extras"));
+ teamBtn?.addEventListener("click",()=>show("builder"));
  talentBtn.addEventListener("click",()=>show("database"));
  trackerBtn.addEventListener("click",()=>show("tracker"));
  $("extrasSearch")?.addEventListener("input",renderCharacterExtras);
