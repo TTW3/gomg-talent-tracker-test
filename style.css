@@ -146,3 +146,19 @@ footer{display:flex;justify-content:space-between;color:var(--muted);font-size:1
   border-color: #a77a5a !important;
   box-shadow: 0 0 0 2px #a77a5a18 !important;
 }
+
+
+/* Gear Database */
+.gear-toolbar{display:grid;grid-template-columns:minmax(220px,2fr) repeat(4,minmax(120px,1fr));gap:8px;margin:12px 0}
+.gear-toolbar input,.gear-toolbar select{width:100%;min-width:0}
+.gear-database-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
+.gear-card{border:1px solid var(--line);border-radius:10px;background:#fffaf5;min-width:0;overflow:hidden}
+.gear-card summary{display:flex;align-items:center;gap:10px;padding:10px;cursor:pointer;list-style:none}
+.gear-card summary::-webkit-details-marker{display:none}
+.gear-icon{width:42px;height:42px;object-fit:contain;flex:0 0 42px;background:#f1e4d8;border-radius:8px}
+.gear-main{display:flex;flex-direction:column;gap:3px;min-width:0;flex:1}
+.gear-main b{overflow-wrap:anywhere}.gear-main small{font-size:11px;color:var(--muted);overflow-wrap:anywhere}
+.gear-chevron{color:var(--muted);font-size:16px}.gear-card[open] .gear-chevron{transform:rotate(45deg)}
+.gear-detail{border-top:1px solid var(--line);padding:8px 12px;font-size:12px;overflow-wrap:anywhere}
+.gear-detail p{margin:7px 0;white-space:pre-wrap}
+@media(max-width:760px){.gear-toolbar{grid-template-columns:1fr 1fr}.gear-toolbar input{grid-column:1/-1}.gear-database-list{grid-template-columns:1fr}}
