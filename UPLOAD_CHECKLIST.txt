@@ -1,24 +1,17 @@
-GOMG Talent Tracker – upload checklist
+GOMG GEAR BOND DATA — PATCH CHECKLIST
 
-Upload/replace these files in the repository root:
-  index.html
+This is a PATCH for a repository where the previous Gear Database package is already uploaded.
+Do NOT replace the entire repository. Do NOT upload the old full UPLOAD_CHECKLIST.txt.
+
+On branch test-trait-title-perk, add/replace ONLY these 4 files at these exact repository paths:
+  gear-database.json
+  gear-database.js
   style.css
-  app.js
-  game-data.json
-  README.md
-  AUTO_UPDATE.md
-  SYNC_GITHUB.md
-  ALTER_NAMES.md
+  tools/update_gear_database.py
 
-And these paths:
-  tools/update_game_data.py
-  .github/workflows/update-game-data.yml
+No other files changed between the previous Gear package and this Bond-data patch. In particular, keep index.html and .github/workflows/update-gear-database.yml as they are.
 
-Do NOT upload any local sync-data file. User sync data stays in the encrypted GitHub file created by the site.
-
-After pushing:
-1. Open GitHub Pages and hard-refresh the site (Ctrl+F5).
-2. Check the DB badge and Talent count.
-3. Pick a Girl and a Talent, then click the Talent info (ⓘ) button to verify the description popup.
-4. If using GitHub Sync, test Pull/Push with the existing token + password.
-5. Open Actions and manually run “Update GOMG game data” once to verify the workflow has write permission.
+After committing:
+1. Hard-refresh GitHub Pages (Ctrl+F5).
+2. Open Gear Database and inspect a few items with Bond entries.
+3. To test automatic updates, run Actions > Update GOMG gear database > Run workflow.
