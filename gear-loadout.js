@@ -8,6 +8,9 @@ function installGearLoadoutStyles(){
  const style=document.createElement('style');style.id='gearLoadoutOnlyStyles';
  style.textContent=`
  /* Gear Loadout only. Do not affect other tabs. */
+ #gearLoadoutView .gl-board{min-height:540px;overflow:visible}
+ #gearLoadoutView .gl-pos-badge{bottom:3%}
+
  #gearLoadoutView .gl-toolbar{display:flex;gap:10px;align-items:end;flex-wrap:wrap;margin-bottom:15px}
  #gearLoadoutView .gl-character-field{display:flex;flex-direction:column;gap:5px;font-size:12px;color:var(--muted);min-width:260px;flex:1 1 320px}
  #gearLoadoutView .gl-character-autocomplete{position:relative;width:100%;min-width:0}
