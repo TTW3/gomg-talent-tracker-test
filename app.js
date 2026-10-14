@@ -220,7 +220,7 @@ function injectTrackerLayoutStyle(){if($("trackerLayoutStyle"))return;const st=d
 .tracker-girl-line{display:flex;align-items:center;gap:8px;min-width:0}
 .tracker-girl-line .autocomplete{flex:1;min-width:0}
 .tracker-girl-icon{width:42px;height:42px;object-fit:cover;border-radius:9px;flex:0 0 42px;background:#f3e4dc}
-.tracker-girl-line .girlinput{display:block;width:100%;min-width:0;box-sizing:border-box;min-height:44px;height:44px;max-height:180px;resize:none;overflow:hidden;white-space:pre-wrap;overflow-wrap:anywhere;line-height:1.25;padding:6px 10px 10px;font:inherit}
+.tracker-girl-line .girlinput{display:block;width:100%;min-width:0;box-sizing:border-box;min-height:44px;height:44px;max-height:180px;resize:none;overflow:hidden;white-space:pre-wrap;overflow-wrap:anywhere;line-height:1.25;padding:6px 10px 10px;font:inherit;border:1px solid #ceb7a4;border-radius:8px;background:#fff;color:var(--text);outline-offset:1px}.tracker-girl-line .girlinput:focus{border-color:#a77a5a;box-shadow:0 0 0 2px #a77a5a18}.tracker-girl-line .girlinput::placeholder{color:#806d60;opacity:1}
 .tracker-total-count{flex:0 0 auto;background:#35ad62;color:#fff;border-radius:8px;padding:5px 8px;font-weight:800;white-space:nowrap}
 .board-tabs{display:flex;flex-wrap:wrap;gap:5px;margin-top:7px}
 .board-tabs .board-tab{font-size:12px;padding:6px 8px;white-space:nowrap;display:inline-flex;align-items:center;gap:5px}
