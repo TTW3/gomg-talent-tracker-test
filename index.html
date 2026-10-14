@@ -15,7 +15,6 @@
 </section>
 <section class="card team-builder-view" id="teamBuilderView" hidden>
  <div class="section-head"><div><h2>⚔ Team Builder</h2><span class="muted">Tạo team 3 nhân vật và gán Trait / Title / Perk từ Profile của nhân vật khác</span></div><span id="teamBuilderStatus" class="status">Đang tải dữ liệu…</span></div>
- <div class="tb-mode-switch"><button type="button" class="primary" data-tb-mode="team">⚔ Team 3 nhân vật</button><button type="button" data-tb-mode="single">👤 Build 1 nhân vật</button></div>
  <div class="team-builder-toolbar"><label>Tên team<input id="teamName" maxlength="80" placeholder="Ví dụ: Precision team"></label><div class="team-builder-actions"><button id="saveTeamBtn" class="primary" type="button">Lưu team</button><button id="newTeamBtn" type="button">Team mới</button><button id="exportTeamBtn" type="button">Xuất JSON</button></div></div>
  <div id="teamBuilderMembers" class="team-builder-members"></div>
  <div class="team-saved-wrap"><div class="section-head"><h3>Team đã lưu</h3><span class="muted">Chỉ lưu trên trình duyệt này</span></div><div id="savedTeamsList" class="saved-teams-list"></div></div>
@@ -35,7 +34,7 @@
 </section>
 <section class="card gear-loadout-view" id="gearLoadoutView" hidden>
  <div class="section-head"><div><h2>⚔ Gear Loadout</h2><span class="muted">Chọn nhân vật, gắn trang bị từ Gear Database và xem tổng chỉ số</span></div><span id="gearLoadoutStatus" class="status">Đang tải dữ liệu…</span></div>
- <div class="gl-toolbar"><label>Nhân vật<select id="glCharacter"><option value="">Đang tải danh sách…</option></select></label><label>Tìm nhân vật<input id="glCharacterSearch" placeholder="Tên nhân vật…"></label><button id="glClearBtn" type="button">Tháo toàn bộ gear</button></div>
+ <div class="gl-toolbar"><label class="gl-character-field">Nhân vật<div class="gl-character-autocomplete"><input id="glCharacterSearch" type="text" placeholder="Gõ tên nhân vật để tìm…" autocomplete="off" aria-label="Tìm và chọn nhân vật"><div id="glCharacterSuggestions" class="gl-character-suggestions" role="listbox"></div></div><select id="glCharacter" hidden aria-hidden="true" tabindex="-1"><option value="">— Chọn nhân vật —</option></select></label><button id="glClearBtn" type="button">Tháo toàn bộ gear</button></div>
  <div class="gl-layout"><div class="gl-stage"><div class="gl-stage-title" id="glCharacterName">Chọn nhân vật</div><div class="gl-board">
   <button class="gl-slot gl-pos-head" data-slot="Head"><span class="gl-slot-icon">♜</span><b>Head</b><small>Trống</small></button>
   <button class="gl-slot gl-pos-necklace" data-slot="Necklace"><span class="gl-slot-icon">◇</span><b>Necklace</b><small>Trống</small></button>
