@@ -3,6 +3,58 @@ const $=id=>document.getElementById(id), esc=s=>String(s??'').replace(/[&<>"']/g
 const norm=s=>String(s??'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().trim();
 const KEY='gomg-gear-loadout-v1';let chars=[],gears=[],current='',loadouts={},activeSlot='';
 const slots=['Head','Necklace','Body','Gloves','Shoes','Belt','Ring','Badge','Main','Off'];
+function installGearLoadoutStyles(){
+ if(document.getElementById('gearLoadoutOnlyStyles'))return;
+ const style=document.createElement('style');style.id='gearLoadoutOnlyStyles';
+ style.textContent=`
+ /* Gear Loadout only. Do not affect other tabs. */
+ #gearLoadoutView .gl-toolbar{display:flex;gap:10px;align-items:end;flex-wrap:wrap;margin-bottom:15px}
+ #gearLoadoutView .gl-character-field{display:flex;flex-direction:column;gap:5px;font-size:12px;color:var(--muted);min-width:260px;flex:1 1 320px}
+ #gearLoadoutView .gl-character-autocomplete{position:relative;width:100%;min-width:0}
+ #gearLoadoutView .gl-character-autocomplete input{width:100%;min-width:0;box-sizing:border-box}
+ #gearLoadoutView .gl-character-suggestions{display:none;position:absolute;left:0;right:0;top:calc(100% + 4px);max-height:300px;overflow:auto;background:#fffaf5;border:1px solid var(--line);border-radius:10px;box-shadow:0 8px 22px #6e493426;z-index:1200;touch-action:pan-y;-webkit-overflow-scrolling:touch}
+ #gearLoadoutView .gl-character-suggestions.open{display:block}
+ #gearLoadoutView .gl-character-suggestion{display:flex;align-items:center;gap:9px;width:100%;padding:8px 10px;text-align:left;background:transparent;border:0;border-bottom:1px solid #eadbd0;border-radius:0;color:var(--text);cursor:pointer}
+ #gearLoadoutView .gl-character-suggestion:last-child{border-bottom:0}
+ #gearLoadoutView .gl-character-suggestion:hover,#gearLoadoutView .gl-character-suggestion[aria-selected=true]{background:#f1e2d5}
+ #gearLoadoutView .gl-character-suggestion img,#gearLoadoutView .gl-character-no-icon{width:36px;height:36px;flex:0 0 36px;object-fit:cover;border-radius:7px;background:#eadbd0;display:flex;align-items:center;justify-content:center}
+ #gearLoadoutView .gl-character-suggestion>span:last-child{display:flex;flex-direction:column;gap:3px;min-width:0}
+ #gearLoadoutView .gl-character-suggestion b{font-size:12px;line-height:1.3;overflow-wrap:anywhere}
+ #gearLoadoutView .gl-character-suggestion small{font-size:10px;color:var(--muted);white-space:normal}
+ #gearLoadoutView .gl-character-no-result{padding:12px;color:var(--muted);font-size:12px}
+ #gearLoadoutView .gl-bond-row{padding:0!important;border:1px solid #ead9ca!important;border-radius:9px;margin:0 0 7px;overflow:hidden;background:#fffdf9}
+ #gearLoadoutView .gl-bond-row summary{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:9px 10px;cursor:pointer;list-style:none}
+ #gearLoadoutView .gl-bond-row summary::-webkit-details-marker{display:none}
+ #gearLoadoutView .gl-bond-title{display:flex;flex-direction:column;gap:3px;min-width:0}
+ #gearLoadoutView .gl-bond-title b{font-size:12px;overflow-wrap:anywhere}
+ #gearLoadoutView .gl-bond-title small{font-size:10px;color:var(--muted)}
+ #gearLoadoutView .gl-bond-chevron{font-size:16px;color:var(--brown);flex:0 0 auto;transition:transform .15s}
+ #gearLoadoutView .gl-bond-row[open] .gl-bond-chevron{transform:rotate(45deg)}
+ #gearLoadoutView .gl-bond-detail{padding:9px 10px 10px;border-top:1px solid #eadbd0;background:#fffaf5;font-size:11px;line-height:1.5;overflow-wrap:anywhere}
+ #gearLoadoutView .gl-bond-detail p{margin:4px 0 8px}
+ #gearLoadoutView .gl-bond-effect{display:flex;flex-direction:column;gap:2px;padding:7px 8px;margin:5px 0;border-radius:7px;background:#edf5e9;color:#3f6540}
+ #gearLoadoutView .gl-bond-effect b{font-size:11px}
+ #gearLoadoutView .gl-bond-inactive{background:#f5eee8;color:var(--muted)}
+ #gearLoadoutView .gl-bond-next{color:var(--muted)}
+ #gearLoadoutView .gl-bond-gear{padding-top:6px;border-top:1px dashed #eadbd0}
+ #gearLoadoutView .gl-slot-remove{font-size:9px;color:#9a4638;line-height:1.2;text-align:center}
+ `;
+ document.head.appendChild(style);
+}
+function ensureCharacterAutocomplete(){
+ const input=$('glCharacterSearch'),sel=$('glCharacter');if(!input||!sel)return;
+ let box=$('glCharacterSuggestions'),wrap=input.closest('.gl-character-autocomplete');
+ if(!wrap){
+  const label=input.closest('label');
+  wrap=document.createElement('div');wrap.className='gl-character-autocomplete';
+  input.parentNode.insertBefore(wrap,input);wrap.appendChild(input);
+  if(label){label.classList.add('gl-character-field');for(const n of [...label.childNodes])if(n.nodeType===Node.TEXT_NODE&&n.textContent.trim()){n.textContent='Nhân vật';break;}}
+ }
+ if(!box){box=document.createElement('div');box.id='glCharacterSuggestions';box.className='gl-character-suggestions';box.setAttribute('role','listbox');wrap.appendChild(box);}
+ const selectLabel=sel.closest('label');if(selectLabel)selectLabel.hidden=true;else sel.hidden=true;
+ input.setAttribute('autocomplete','off');input.setAttribute('aria-label','Tìm và chọn nhân vật');
+}
+
 function switchView(){document.querySelectorAll('.tracker-view').forEach(x=>x.hidden=true);['talentDatabaseView','characterExtrasView','teamBuilderView','buildAdvisorView','gearDatabaseView'].forEach(id=>{const e=$(id);if(e)e.hidden=true});$('gearLoadoutView').hidden=false;document.querySelectorAll('.view-switcher button').forEach(b=>b.classList.remove('primary'));$('gearLoadoutViewBtn').classList.add('primary');render();}
 function hide(){if($('gearLoadoutView'))$('gearLoadoutView').hidden=true;$('gearLoadoutViewBtn')?.classList.remove('primary');closeCharacterSuggestions();}
 function gearIcon(g){return 'https://gomg-wiki.pages.dev/'+String(g.icon||'').replace(/^\//,'')}
@@ -18,5 +70,6 @@ function renderCharacterSuggestions(){const input=$('glCharacterSearch'),box=$('
 function selectCharacter(id){const c=chars.find(x=>String(x.id)===String(id));if(!c)return;current=String(c.id);$('glCharacter').value=current;$('glCharacterSearch').value=c.name_en||c.name||c.id;activeSlot='';closeCharacterSuggestions();render();}
 function renderPicker(){const slot=activeSlot;$('glPickerSlot').textContent=slot?'— '+slot:'';const q=norm($('glGearSearch').value),tier=$('glGearTier').value,cls=$('glGearClass').value;const found=gears.filter(g=>g.slot===slot&&(tier==='All'||g.step===tier)&&(cls==='All'||String(g.cls||'').split(',').map(x=>x.trim()).includes(cls))&&(!q||norm([g.id,g.name,g.step,g.slot,g.cls,Object.entries(g.stats||{}).map(([k,v])=>k+' '+v).join(' ')].join(' ')).includes(q))).slice(0,100);$('glGearResults').innerHTML=found.length?found.map(g=>`<button class="gl-gear-item" data-gear-id="${esc(g.id)}"><img src="${esc(gearIcon(g))}" onerror="this.style.visibility='hidden'"><span><b>${esc(g.name)}</b><small>${esc(g.id)} · ${esc(g.step)} · ${esc(g.cls||'')}</small><small>${esc(Object.entries(g.stats||{}).filter(([k,v])=>Number(v)).map(([k,v])=>k+' '+(v>0?'+':'')+v).join(' · ')||'Không có chỉ số')}</small></span></button>`).join(''):'<p class="gl-empty">Không tìm thấy gear cho slot này.</p>';}
 async function init(){try{const [cr,gr]=await Promise.all([fetch('game-data.json',{cache:'no-cache'}),fetch('gear-database.json',{cache:'no-cache'})]);if(!cr.ok||!gr.ok)throw Error('Thiếu game-data.json hoặc gear-database.json');const cd=await cr.json();gears=await gr.json();chars=Array.isArray(cd)?cd:(cd.characters||cd.units||[]);if(!Array.isArray(gears)||gears.length<100)throw Error('Gear database chưa đầy đủ');try{loadouts=JSON.parse(localStorage.getItem(KEY)||'{}')}catch{loadouts={};}const sel=$('glCharacter');sel.innerHTML='<option value="">— Chọn nhân vật —</option>'+chars.map(c=>`<option value="${esc(c.id)}">${esc(c.name_en||c.name||c.id)}</option>`).join('');const classes=[...new Set(gears.flatMap(g=>String(g.cls||'').split(',').map(x=>x.trim()).filter(Boolean)))].sort();$('glGearClass').innerHTML='<option value="All">Mọi class</option>'+classes.map(c=>`<option value="${esc(c)}">${esc(c)}</option>`).join('');$('gearLoadoutStatus').textContent=`${chars.length} nhân vật · ${gears.length} gear`; }catch(e){$('gearLoadoutStatus').textContent='Lỗi tải dữ liệu';$('glGearResults').innerHTML=`<p class="gl-empty">${esc(e.message)}. Kiểm tra hai file JSON trong repo test.</p>`;}}
+installGearLoadoutStyles();ensureCharacterAutocomplete();
 document.querySelector('.view-switcher')?.addEventListener('click',e=>{if(!e.target.closest('#gearLoadoutViewBtn'))hide();});$('gearLoadoutViewBtn')?.addEventListener('click',switchView);$('glCharacterSearch')?.addEventListener('input',()=>{renderCharacterSuggestions();});$('glCharacterSearch')?.addEventListener('focus',renderCharacterSuggestions);$('glCharacterSearch')?.addEventListener('keydown',e=>{if(e.key==='Escape')closeCharacterSuggestions();if(e.key==='Enter'){const first=$('glCharacterSuggestions')?.querySelector('[data-char-id]');if(first){e.preventDefault();selectCharacter(first.dataset.charId);}}});$('glCharacterSuggestions')?.addEventListener('click',e=>{const b=e.target.closest('[data-char-id]');if(b)selectCharacter(b.dataset.charId);});document.addEventListener('click',e=>{if(!e.target.closest('.gl-character-autocomplete'))closeCharacterSuggestions();});$('glCharacter')?.addEventListener('change',e=>selectCharacter(e.target.value));document.querySelectorAll('.gl-slot').forEach(b=>b.addEventListener('click',()=>{if(!current){$('gearLoadoutStatus').textContent='Hãy chọn nhân vật trước';$('glCharacterSearch').focus();return;}const slot=b.dataset.slot;activeSlot=slot;renderPicker();$('glGearSearch').focus();}));$('glGearSearch')?.addEventListener('input',renderPicker);$('glGearTier')?.addEventListener('change',renderPicker);$('glGearClass')?.addEventListener('change',renderPicker);$('glGearResults')?.addEventListener('click',e=>{const b=e.target.closest('[data-gear-id]');if(!b||!activeSlot||!current)return;currentSet()[activeSlot]=b.dataset.gearId;localStorage.setItem(KEY,JSON.stringify(loadouts));render();});$('glClearBtn')?.addEventListener('click',()=>{if(!current){$('gearLoadoutStatus').textContent='Hãy chọn nhân vật trước';return;}if(!window.confirm('Tháo toàn bộ gear của nhân vật đang chọn?'))return;loadouts[current]={};localStorage.setItem(KEY,JSON.stringify(loadouts));render();});init();
 })();
