@@ -160,3 +160,82 @@ footer{display:flex;justify-content:space-between;color:var(--muted);font-size:1
 .gl-bond-next{color:var(--muted)}
 .gl-bond-gear{padding-top:6px;border-top:1px dashed #eadbd0}
 .gl-slot-remove{font-size:9px;color:#9a4638;line-height:1.2;text-align:center}
+
+
+
+/* Restore Gear Database grid cards only; scoped to the existing Gear Database list */
+#gearDatabaseList {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+  align-items: start;
+}
+#gearDatabaseList > .gear-card {
+  display: block;
+  min-width: 0;
+  margin: 0;
+  overflow: hidden;
+  background: #fffaf5;
+  border: 1px solid #e7c8b5;
+  border-radius: 10px;
+}
+#gearDatabaseList > .gear-card > summary {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  min-height: 58px;
+  padding: 8px 10px;
+  cursor: pointer;
+  list-style: none;
+}
+#gearDatabaseList > .gear-card > summary::-webkit-details-marker { display: none; }
+#gearDatabaseList > .gear-card > summary::marker { content: ""; }
+#gearDatabaseList > .gear-card .gear-icon {
+  display: block;
+  flex: 0 0 36px;
+  width: 36px;
+  height: 36px;
+  object-fit: contain;
+  border-radius: 7px;
+  background: #f4e3d6;
+}
+#gearDatabaseList > .gear-card .gear-main {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+}
+#gearDatabaseList > .gear-card .gear-main b {
+  font-size: 12px;
+  line-height: 1.25;
+  overflow-wrap: anywhere;
+}
+#gearDatabaseList > .gear-card .gear-main small {
+  display: block;
+  font-size: 10px;
+  line-height: 1.3;
+  overflow-wrap: anywhere;
+}
+#gearDatabaseList > .gear-card .gear-chevron {
+  flex: 0 0 auto;
+  margin-left: auto;
+}
+#gearDatabaseList > .gear-card[open] {
+  border-color: #cba48b;
+  box-shadow: 0 2px 7px rgba(80, 48, 30, .06);
+}
+#gearDatabaseList > .gear-card[open] .gear-chevron { transform: rotate(45deg); }
+#gearDatabaseList > .gear-card .gear-detail {
+  padding: 9px 12px 11px;
+  border-top: 1px solid #ecd8ca;
+  background: #fffdf9;
+  font-size: 11px;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}
+#gearDatabaseList > .gear-card .gear-detail p { margin: 5px 0; }
+#gearDatabaseList > .gear-card .gear-detail details { margin: 5px 0; }
+@media (max-width: 700px) {
+  #gearDatabaseList { grid-template-columns: minmax(0, 1fr); }
+}
