@@ -24,6 +24,19 @@
       #characterBuildPlannerView .cbp-panel h3{font-size:13px;margin:0 0 10px}
       #characterBuildPlannerView .cbp-field{display:flex;flex-direction:column;gap:5px;font-size:12px;margin-bottom:9px;min-width:0}
       #characterBuildPlannerView input,#characterBuildPlannerView select,#characterBuildPlannerView textarea{width:100%;box-sizing:border-box;min-width:0}
+      #characterBuildPlannerView .cbp-character-picker{position:relative;width:100%;min-width:0}
+      #characterBuildPlannerView #cbpCharacterSearch{width:100%;min-height:36px;padding:8px 10px;border:1px solid #d9b49d;border-radius:8px;background:#fff;color:var(--text,#402a20);box-sizing:border-box}
+      #characterBuildPlannerView #cbpCharacterSearch:focus{outline:2px solid #b98768;outline-offset:1px}
+      #characterBuildPlannerView .cbp-character-suggestions{position:absolute;top:calc(100% + 4px);left:0;right:0;z-index:1000;max-height:320px;overflow-y:auto;border:1px solid #e3c5b1;border-radius:9px;background:#fffaf5;box-shadow:0 8px 22px rgba(70,42,27,.16)}
+      #characterBuildPlannerView .cbp-character-suggestions[hidden]{display:none}
+      #characterBuildPlannerView .cbp-character-option{display:flex;align-items:center;gap:9px;width:100%;padding:8px 10px;border:0;border-bottom:1px solid #f0dfd3;background:transparent;text-align:left;color:var(--text,#402a20);cursor:pointer}
+      #characterBuildPlannerView .cbp-character-option:last-child{border-bottom:0}
+      #characterBuildPlannerView .cbp-character-option:hover,#characterBuildPlannerView .cbp-character-option:focus{background:#f3e1d5;outline:none}
+      #characterBuildPlannerView .cbp-character-option img{width:38px;height:38px;flex:0 0 38px;object-fit:cover;border:1px solid #ead2c2;border-radius:7px;background:#f0dfd2}
+      #characterBuildPlannerView .cbp-character-option span{display:flex;flex-direction:column;gap:3px;min-width:0}
+      #characterBuildPlannerView .cbp-character-option b{font-size:12px;line-height:1.25}
+      #characterBuildPlannerView .cbp-character-option small{font-size:10px;color:var(--muted,#806d60)}
+      #characterBuildPlannerView .cbp-character-empty{padding:10px;font-size:11px;color:var(--muted,#806d60)}
       #characterBuildPlannerView .cbp-charrow{display:flex;align-items:center;gap:10px;margin-bottom:10px}
       #characterBuildPlannerView .cbp-charrow img{width:58px;height:58px;object-fit:cover;border-radius:9px;background:#f0dfd2;border:1px solid #e7c8b5}
       #characterBuildPlannerView .cbp-charrow b{font-size:14px}
@@ -62,7 +75,13 @@
     view.innerHTML = `
       <div class="cbp-head"><div><h2>🧩 Character Build Planner</h2><span class="muted">Gom gear, Talent, Trait, Title và Perk vào một bản build. Dữ liệu build được lưu riêng.</span></div><span id="cbpStatus" class="status">Đang tải dữ liệu…</span></div>
       <div class="cbp-panel" style="margin-bottom:12px">
-        <div class="cbp-actions"><label class="cbp-field" style="flex:1;min-width:220px;margin:0">Tên bản build<input id="cbpName" maxlength="90" placeholder="Ví dụ: Stellar Archer — Follow-up"></label><label class="cbp-field" style="flex:1;min-width:220px;margin:0">Nhân vật<select id="cbpCharacter"><option value="">Đang tải nhân vật…</option></select></label></div>
+        <div class="cbp-actions"><label class="cbp-field" style="flex:1;min-width:220px;margin:0">Tên bản build<input id="cbpName" maxlength="90" placeholder="Ví dụ: Stellar Archer — Follow-up"></label><label class="cbp-field" style="flex:1;min-width:220px;margin:0">Nhân vật
+          <div class="cbp-character-picker">
+            <input id="cbpCharacterSearch" type="text" autocomplete="off" placeholder="Nhập tên nhân vật..." aria-label="Tìm nhân vật">
+            <div id="cbpCharacterSuggestions" class="cbp-character-suggestions" hidden></div>
+            <select id="cbpCharacter" aria-hidden="true" tabindex="-1" style="display:none"><option value="">Đang tải nhân vật…</option></select>
+          </div>
+        </label></div>
         <div class="cbp-actions" style="margin-top:10px"><button type="button" class="primary" id="cbpSave">Lưu bản build</button><button type="button" id="cbpNew">Build mới</button><button type="button" id="cbpRefreshGear">Làm mới gear từ Gear Loadout</button><button type="button" id="cbpExport">Xuất JSON</button><label style="display:inline-flex;align-items:center"><input id="cbpImportFile" type="file" accept="application/json,.json" style="max-width:220px"></label></div>
         <p class="cbp-note">Planner đọc gear đang lưu trong Gear Loadout và dữ liệu hiện có. Việc đổi gear vẫn thực hiện trong tab Gear Loadout; các thay đổi tại đây không ghi đè dữ liệu gear gốc.</p>
       </div>
@@ -111,10 +130,59 @@
   function selectedExtra(kind) { const id=$('cbp'+kind[0].toUpperCase()+kind.slice(1))?.value; return allExtraOptions(kind).find(x=>x.id===id)||null; }
   function fillOptions() {
     $('cbpCharacter').innerHTML='<option value="">— Chọn nhân vật —</option>'+chars.slice().sort((a,b)=>(a.name_en||a.name||'').localeCompare(b.name_en||b.name||'')).map(c=>`<option value="${esc(c.id)}">${esc(c.name_en||c.name||c.id)}</option>`).join('');
+    syncCharacterSearch();
     const talentOptions=talents.slice().sort((a,b)=>(a.name_en||a.name||'').localeCompare(b.name_en||b.name||''));
     for(let i=0;i<4;i++) $('cbpTalent'+i).innerHTML='<option value="">— Không chọn —</option>'+talentOptions.map(t=>`<option value="${esc(t.id)}">${esc(t.name_en||t.name||t.id)}</option>`).join('');
     $('cbpExtras').innerHTML=extraSelect('trait','Trait')+extraSelect('title','Title')+extraSelect('perk','Perk');
     ['trait','title','perk'].forEach(kind=>$('cbp'+kind[0].toUpperCase()+kind.slice(1)).addEventListener('change',()=>renderExtraDetail(kind)));
+  }
+  function characterName(c) { return c?.name_en||c?.name||c?.id||'Unknown'; }
+  function characterIcon(c) {
+    if (!c) return '';
+    if (c.icon) return c.icon;
+    const source=String(c.source_id||c.sourceId||'').trim();
+    return source ? `https://gomg-wiki.pages.dev/assets/icons/Header/${encodeURIComponent(source)}.png` : '';
+  }
+  function syncCharacterSearch() {
+    const input=$('cbpCharacterSearch'),select=$('cbpCharacter');
+    if(!input||!select)return;
+    const c=chars.find(x=>String(x.id)===String(select.value));
+    input.value=c?characterName(c):'';
+  }
+  function renderCharacterSuggestions(query) {
+    const box=$('cbpCharacterSuggestions');
+    if(!box)return;
+    const q=norm(query);
+    if(!q){box.hidden=true;box.innerHTML='';return;}
+    const matches=chars.filter(c=>norm(characterName(c)).includes(q) || norm(c.base_id).includes(q) || norm(c.source_id).includes(q))
+      .sort((a,b)=>characterName(a).localeCompare(characterName(b))).slice(0,12);
+    if(!matches.length){box.innerHTML='<div class="cbp-character-empty">Không tìm thấy nhân vật phù hợp.</div>';box.hidden=false;return;}
+    box.innerHTML=matches.map(c=>{
+      const icon=characterIcon(c),meta=[c.rarity,c.role,c.element].filter(Boolean).join(' · ');
+      return `<button type="button" class="cbp-character-option" data-cbp-character-id="${esc(c.id)}">${icon?`<img src="${esc(icon)}" alt="" loading="lazy" onerror="this.style.visibility='hidden'">`:''}<span><b>${esc(characterName(c))}</b><small>${esc(meta||c.id)}</small></span></button>`;
+    }).join('');
+    box.hidden=false;
+  }
+  function chooseCharacter(id) {
+    const select=$('cbpCharacter'),c=chars.find(x=>String(x.id)===String(id));
+    if(!select||!c)return;
+    select.value=String(c.id);syncCharacterSearch();
+    const box=$('cbpCharacterSuggestions');if(box)box.hidden=true;
+    select.dispatchEvent(new Event('change',{bubbles:true}));
+  }
+  function bindCharacterAutocomplete() {
+    const input=$('cbpCharacterSearch'),box=$('cbpCharacterSuggestions');
+    if(!input||!box||input.dataset.bound)return;
+    input.dataset.bound='1';
+    input.addEventListener('input',()=>renderCharacterSuggestions(input.value));
+    input.addEventListener('focus',()=>{if(input.value.trim())renderCharacterSuggestions(input.value);});
+    input.addEventListener('keydown',e=>{
+      if(e.key==='Escape'){box.hidden=true;return;}
+      if(e.key==='Enter'&&!box.hidden){const first=box.querySelector('[data-cbp-character-id]');if(first){e.preventDefault();chooseCharacter(first.dataset.cbpCharacterId);}}
+      if(e.key==='ArrowDown'&&!box.hidden){e.preventDefault();box.querySelector('[data-cbp-character-id]')?.focus();}
+    });
+    box.addEventListener('mousedown',e=>{const option=e.target.closest('[data-cbp-character-id]');if(option){e.preventDefault();chooseCharacter(option.dataset.cbpCharacterId);}});
+    document.addEventListener('click',e=>{if(!e.target.closest('.cbp-character-picker'))box.hidden=true;});
   }
   function renderExtraDetail(kind) { const x=selectedExtra(kind), el=$('cbp'+kind[0].toUpperCase()+kind.slice(1)+'Detail'); if(el)el.textContent=x?[x.source,x.unlock,x.effect].filter(Boolean).join(' · '):''; }
   function getTrackerTalents(c) {
@@ -150,7 +218,7 @@
     return {id,name:$('cbpName').value.trim()||(c.name_en||c.name||'Character')+' Build',characterId:c.id,characterName:c.name_en||c.name||c.id,talents:[0,1,2,3].map(i=>$('cbpTalent'+i).value||''),trait:$('cbpTrait').value||'',title:$('cbpTitle').value||'',perk:$('cbpPerk').value||'',gear:JSON.parse(JSON.stringify(selectedGear())),legacy:JSON.parse(JSON.stringify(selectedLegacy())),stars:JSON.parse(JSON.stringify(selectedStars())),savedAt:new Date().toISOString()};
   }
   function loadPlan(p) {
-    currentPlanId=p.id;snapshotOverride={characterId:p.characterId,gear:p.gear||{},legacy:p.legacy||{},stars:p.stars||{}};$('cbpName').value=p.name||'';$('cbpCharacter').value=String(p.characterId||'');renderCharacterDetails();
+    currentPlanId=p.id;snapshotOverride={characterId:p.characterId,gear:p.gear||{},legacy:p.legacy||{},stars:p.stars||{}};$('cbpName').value=p.name||'';$('cbpCharacter').value=String(p.characterId||'');syncCharacterSearch();renderCharacterDetails();
     (p.talents||[]).forEach((v,i)=>{if($('cbpTalent'+i)){$('cbpTalent'+i).value=v||'';$('cbpTalent'+i).dataset.userChanged='1';}});
     ['trait','title','perk'].forEach(k=>{const el=$('cbp'+k[0].toUpperCase()+k.slice(1));el.value=p[k]||'';el.dataset.userChanged='1';renderExtraDetail(k);});
     // Show saved gear snapshot in the planner, even if Gear Loadout has since changed.
@@ -158,13 +226,14 @@
     renderSaved();
   }
   function renderSaved() { const el=$('cbpSavedList');if(!el)return;el.innerHTML=saved.length?saved.slice().sort((a,b)=>(b.savedAt||'').localeCompare(a.savedAt||'')).map(p=>`<div class="cbp-saved"><span><b>${esc(p.name)}</b><br><small class="muted">${esc(p.characterName||'')} · ${(p.talents||[]).filter(Boolean).length}/4 Talent</small></span><div class="cbp-actions"><button type="button" data-cbp-load="${esc(p.id)}">Mở</button><button type="button" data-cbp-delete="${esc(p.id)}">Xóa</button></div></div>`).join(''):'<p class="cbp-empty">Chưa có bản build nào được lưu.</p>'; }
-  function resetForm() { currentPlanId='';snapshotOverride=null;$('cbpName').value='';$('cbpCharacter').value='';[0,1,2,3].forEach(i=>{const e=$('cbpTalent'+i);e.value='';delete e.dataset.userChanged;});['trait','title','perk'].forEach(k=>{const e=$('cbp'+k[0].toUpperCase()+k.slice(1));e.value='';delete e.dataset.userChanged;renderExtraDetail(k);});renderCharacterDetails(); }
+  function resetForm() { currentPlanId='';snapshotOverride=null;$('cbpName').value='';$('cbpCharacter').value='';syncCharacterSearch();[0,1,2,3].forEach(i=>{const e=$('cbpTalent'+i);e.value='';delete e.dataset.userChanged;});['trait','title','perk'].forEach(k=>{const e=$('cbp'+k[0].toUpperCase()+k.slice(1));e.value='';delete e.dataset.userChanged;renderExtraDetail(k);});renderCharacterDetails(); }
   async function initData() {
     try { const urls=['game-data.json','character-extras.json','gear-database.json'];const [c,e,g]=await Promise.all(urls.map(url=>fetch(url,{cache:'no-cache'})));if(!c.ok||!e.ok||!g.ok)throw new Error('Không tải được một trong các file dữ liệu JSON');const cd=await c.json(),ed=await e.json();chars=Array.isArray(cd)?cd:(cd.characters||cd.units||[]);talents=cd.talents||[];extras=ed.data||[];gears=await g.json();saved=getStored(PLAN_KEY,[]);if(!Array.isArray(saved))saved=[];fillOptions();$('cbpStatus').textContent=`${chars.length} nhân vật · ${talents.length} Talent · ${extras.length} Profile`;renderSaved();renderCharacterDetails();initialized=true;
     } catch(err) { $('cbpStatus').textContent='Lỗi tải dữ liệu';$('cbpCharacterInfo').innerHTML=`<p class="cbp-empty">${esc(err.message)}. Kiểm tra game-data.json, character-extras.json và gear-database.json.</p>`; }
   }
   function bind() {
-    $('cbpCharacter').addEventListener('change',()=>{currentPlanId='';snapshotOverride=null;$('cbpName').value='';[0,1,2,3].forEach(i=>{const el=$('cbpTalent'+i);el.value='';delete el.dataset.userChanged;});['trait','title','perk'].forEach(k=>{const el=$('cbp'+k[0].toUpperCase()+k.slice(1));el.value='';delete el.dataset.userChanged;renderExtraDetail(k);});renderCharacterDetails();});
+    bindCharacterAutocomplete();
+    $('cbpCharacter').addEventListener('change',()=>{syncCharacterSearch();currentPlanId='';snapshotOverride=null;$('cbpName').value='';[0,1,2,3].forEach(i=>{const el=$('cbpTalent'+i);el.value='';delete el.dataset.userChanged;});['trait','title','perk'].forEach(k=>{const el=$('cbp'+k[0].toUpperCase()+k.slice(1));el.value='';delete el.dataset.userChanged;renderExtraDetail(k);});renderCharacterDetails();});
     [0,1,2,3].forEach(i=>$('cbpTalent'+i).addEventListener('change',e=>e.target.dataset.userChanged='1'));
     $('cbpSave').addEventListener('click',()=>{try{const p=makePlan(),idx=saved.findIndex(x=>x.id===p.id);if(idx>=0)saved[idx]=p;else saved.unshift(p);localStorage.setItem(PLAN_KEY,JSON.stringify(saved));currentPlanId=p.id;renderSaved();$('cbpStatus').textContent='Đã lưu bản build';}catch(e){$('cbpStatus').textContent=e.message;}});
     $('cbpNew').addEventListener('click',resetForm);
